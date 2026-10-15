@@ -1,0 +1,6 @@
+{
+  "name": "BrickMosaic Studio",
+  "description": "Design 2D LEGO tile mosaics with official vector tile shapes, collision detection, customizable palettes, and vector SVG, EPS, and transparent PNG export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
