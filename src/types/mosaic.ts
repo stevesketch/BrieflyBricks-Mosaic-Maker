@@ -58,6 +58,7 @@ export interface MosaicState {
   rows: number;
   tiles: PlacedTile[];
   palette: PaletteColor[];
+  canvasBg?: string;
 }
 
 export interface PartCountItem {
@@ -78,4 +79,5 @@ export interface SavedDesign {
   rows: number;
   tiles: PlacedTile[];
   palette: PaletteColor[];
+  canvasBg?: string;
 }
