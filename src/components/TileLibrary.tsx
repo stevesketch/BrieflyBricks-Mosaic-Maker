@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LEGO_TILES } from '../constants/legoTiles';
 import { Rotation, TileCategory, TileType } from '../types/mosaic';
-import { RotateCw, Search } from 'lucide-react';
+import { RotateCw, Search, Plus } from 'lucide-react';
 
 interface TileLibraryProps {
   selectedTileType: TileType;
@@ -10,6 +10,7 @@ interface TileLibraryProps {
   onSelectTileType: (tile: TileType) => void;
   onRotate: () => void;
   onDragStartTile: (tileType: TileType) => void;
+  onOpenAddTile?: () => void;
 }
 
 export const TileLibrary: React.FC<TileLibraryProps> = ({
@@ -19,6 +20,7 @@ export const TileLibrary: React.FC<TileLibraryProps> = ({
   onSelectTileType,
   onRotate,
   onDragStartTile,
+  onOpenAddTile,
 }) => {
   const [filterCategory, setFilterCategory] = useState<TileCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,15 +41,27 @@ export const TileLibrary: React.FC<TileLibraryProps> = ({
           <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
             Tile Library
           </span>
-          <button
-            onClick={onRotate}
-            title="Rotate current tile 90° clockwise (Hotkey: R)"
-            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-md transition-colors"
-          >
-            <RotateCw className="w-3.5 h-3.5" />
-            <span className="font-mono tabular-nums">{rotation}°</span>
-            <kbd className="text-[10px] bg-neutral-900 px-1 rounded text-neutral-400">R</kbd>
-          </button>
+          <div className="flex items-center gap-1.5">
+            {onOpenAddTile && (
+              <button
+                onClick={onOpenAddTile}
+                title="Add custom tile to library"
+                className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-md transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Tile</span>
+              </button>
+            )}
+            <button
+              onClick={onRotate}
+              title="Rotate current tile 90° clockwise (Hotkey: R)"
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-neutral-200 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded-md transition-colors"
+            >
+              <RotateCw className="w-3.5 h-3.5" />
+              <span className="font-mono tabular-nums">{rotation}°</span>
+              <kbd className="text-[10px] bg-neutral-900 px-1 rounded text-neutral-400">R</kbd>
+            </button>
+          </div>
         </div>
 
         {/* Search */}

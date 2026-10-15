@@ -242,7 +242,7 @@ export const PaletteManager: React.FC<PaletteManagerProps> = ({
                 <Check
                   className={`w-3.5 h-3.5 ${
                     // Optical contrast for checkmark
-                    ['#ffffff', '#f2cd37', '#e4cd9e', '#bbe90b', '#adc3c0', '#e1d5ed', '#f8bb3d'].includes(
+                    ['#ffffff', '#f2cd37', '#e4cd9e', '#bbe90b', '#adc3c0', '#e1d5ed', '#f8bb3d', '#ffe853', '#fff89c', '#86d5fb', '#ffc5e2', '#b9aada'].includes(
                       color.hex.toLowerCase()
                     )
                       ? 'text-neutral-950'

@@ -1,6 +1,18 @@
 import { PaletteColor } from '../types/mosaic';
 
 export const INITIAL_LEGO_PALETTE: PaletteColor[] = [
+  // Briefly Bricks Signature Palette (from Briefly Bricks Colour Palette)
+  { id: 'briefly-deep-azure', name: 'Briefly Deep Azure', hex: '#0090D7', isOfficial: true },
+  { id: 'briefly-bright-azure', name: 'Briefly Bright Azure', hex: '#00A3F0', isOfficial: true },
+  { id: 'briefly-sky-blue', name: 'Briefly Sky Blue', hex: '#86D5FB', isOfficial: true },
+  { id: 'briefly-dusty-rose', name: 'Briefly Dusty Rose', hex: '#C85786', isOfficial: true },
+  { id: 'briefly-bright-pink', name: 'Briefly Bright Pink', hex: '#FF6EA7', isOfficial: true },
+  { id: 'briefly-pastel-pink', name: 'Briefly Pastel Pink', hex: '#FFC5E2', isOfficial: true },
+  { id: 'briefly-lilac-purple', name: 'Briefly Lilac Purple', hex: '#9684BE', isOfficial: true },
+  { id: 'briefly-soft-lavender', name: 'Briefly Soft Lavender', hex: '#B9AADA', isOfficial: true },
+  { id: 'briefly-sun-yellow', name: 'Briefly Sun Yellow', hex: '#FFE853', isOfficial: true },
+  { id: 'briefly-pastel-yellow', name: 'Briefly Pastel Yellow', hex: '#FFF89C', isOfficial: true },
+
   // Core & Neutrals
   { id: 'lego-white', name: 'White', hex: '#FFFFFF', isOfficial: true },
   { id: 'lego-black', name: 'Black', hex: '#1B1B1B', isOfficial: true },

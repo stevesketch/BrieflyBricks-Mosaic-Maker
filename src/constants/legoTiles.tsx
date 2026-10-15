@@ -1,5 +1,5 @@
 import React from 'react';
-import { CellCoord, Rotation, TileType } from '../types/mosaic';
+import { CellCoord, Rotation, TileType, TileCategory } from '../types/mosaic';
 
 // Helper to calculate proportional inward offset and corner radius
 export const getTileGeometryParams = (s: number) => {
@@ -718,6 +718,230 @@ export const LEGO_TILES: TileType[] = [
   },
 ];
 
+// ============================================================================
+// CONVENIENCE FACTORIES: Use these to easily add new tiles in 1 line of code!
+// ============================================================================
+
+/**
+ * Creates any rectangular tile of arbitrary width and height (e.g. 1x6, 1x8, 2x3, 2x4).
+ */
+export function createRectangularTile(params: {
+  id: string;
+  name: string;
+  legoPartNumber: string;
+  studWidth: number;
+  studHeight: number;
+  category?: TileCategory;
+}): TileType {
+  const { id, name, legoPartNumber, studWidth, studHeight, category = 'bars' } = params;
+
+  return {
+    id,
+    name,
+    legoPartNumber,
+    category,
+    studWidth,
+    studHeight,
+    getOccupiedCells: (rot) => {
+      const isRotated = rot === 90 || rot === 270;
+      const w = isRotated ? studHeight : studWidth;
+      const h = isRotated ? studWidth : studHeight;
+      const cells: CellCoord[] = [];
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          cells.push({ dx, dy });
+        }
+      }
+      return cells;
+    },
+    renderSvg: (x, y, s, rot, fill, keyId) => {
+      const { inset, radius } = getTileGeometryParams(s);
+      const isRotated = rot === 90 || rot === 270;
+      const w = (isRotated ? studHeight * s : studWidth * s) - 2 * inset;
+      const h = (isRotated ? studWidth * s : studHeight * s) - 2 * inset;
+      return (
+        <rect
+          key={keyId}
+          x={x + inset}
+          y={y + inset}
+          width={w}
+          height={h}
+          rx={radius}
+          ry={radius}
+          fill={fill}
+          stroke="none"
+        />
+      );
+    },
+    drawCanvas: (ctx, x, y, s, rot, fill) => {
+      const { inset, radius } = getTileGeometryParams(s);
+      const isRotated = rot === 90 || rot === 270;
+      const w = (isRotated ? studHeight * s : studWidth * s) - 2 * inset;
+      const h = (isRotated ? studWidth * s : studHeight * s) - 2 * inset;
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.roundRect(x + inset, y + inset, w, h, radius);
+      ctx.fill();
+    },
+    getEpsPostScript: (x, y, s, rot, r, g, b) => {
+      const { inset } = getTileGeometryParams(s);
+      const isRotated = rot === 90 || rot === 270;
+      const w = (isRotated ? studHeight * s : studWidth * s) - 2 * inset;
+      const h = (isRotated ? studWidth * s : studHeight * s) - 2 * inset;
+      return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor ${(x + inset).toFixed(2)} ${(y + inset).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} rectfill\n`;
+    },
+  };
+}
+
+/**
+ * Creates any circular round tile of arbitrary diameter in studs (e.g. 1x1 round, 2x2 round, 3x3 round, 4x4 round).
+ */
+export function createRoundTile(params: {
+  id: string;
+  name: string;
+  legoPartNumber: string;
+  diameter: number; // in studs
+  category?: TileCategory;
+}): TileType {
+  const { id, name, legoPartNumber, diameter, category = 'curved' } = params;
+
+  return {
+    id,
+    name,
+    legoPartNumber,
+    category,
+    studWidth: diameter,
+    studHeight: diameter,
+    getOccupiedCells: () => {
+      const cells: CellCoord[] = [];
+      for (let dy = 0; dy < diameter; dy++) {
+        for (let dx = 0; dx < diameter; dx++) {
+          cells.push({ dx, dy });
+        }
+      }
+      return cells;
+    },
+    renderSvg: (x, y, s, _rot, fill, keyId) => {
+      const { inset } = getTileGeometryParams(s);
+      const radius = (diameter * s) / 2 - inset;
+      const cx = x + (diameter * s) / 2;
+      const cy = y + (diameter * s) / 2;
+      return (
+        <circle
+          key={keyId}
+          cx={cx}
+          cy={cy}
+          r={radius}
+          fill={fill}
+          stroke="none"
+        />
+      );
+    },
+    drawCanvas: (ctx, x, y, s, _rot, fill) => {
+      const { inset } = getTileGeometryParams(s);
+      const radius = (diameter * s) / 2 - inset;
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.arc(x + (diameter * s) / 2, y + (diameter * s) / 2, radius, 0, Math.PI * 2);
+      ctx.fill();
+    },
+    getEpsPostScript: (x, y, s, _rot, r, g, b) => {
+      const { inset } = getTileGeometryParams(s);
+      const radius = (diameter * s) / 2 - inset;
+      const cx = x + (diameter * s) / 2;
+      const cy = y + (diameter * s) / 2;
+      return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor newpath ${cx.toFixed(2)} ${cy.toFixed(2)} ${radius.toFixed(2)} 0 360 arc fill\n`;
+    },
+  };
+}
+
+/**
+ * Creates any capsule (stadium / pill) shape tile with rounded ends.
+ */
+export function createCapsuleTile(params: {
+  id: string;
+  name: string;
+  legoPartNumber: string;
+  studWidth: number;
+  studHeight: number;
+  category?: TileCategory;
+}): TileType {
+  const { id, name, legoPartNumber, studWidth, studHeight, category = 'curved' } = params;
+
+  return {
+    id,
+    name,
+    legoPartNumber,
+    category,
+    studWidth,
+    studHeight,
+    getOccupiedCells: (rot) => {
+      const isRotated = rot === 90 || rot === 270;
+      const w = isRotated ? studHeight : studWidth;
+      const h = isRotated ? studWidth : studHeight;
+      const cells: CellCoord[] = [];
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          cells.push({ dx, dy });
+        }
+      }
+      return cells;
+    },
+    renderSvg: (x, y, s, rot, fill, keyId) => {
+      const { inset } = getTileGeometryParams(s);
+      const isRotated = rot === 90 || rot === 270;
+      const w = (isRotated ? studHeight * s : studWidth * s) - 2 * inset;
+      const h = (isRotated ? studWidth * s : studHeight * s) - 2 * inset;
+      const r = Math.min(w, h) / 2;
+      return (
+        <rect
+          key={keyId}
+          x={x + inset}
+          y={y + inset}
+          width={w}
+          height={h}
+          rx={r}
+          ry={r}
+          fill={fill}
+          stroke="none"
+        />
+      );
+    },
+    drawCanvas: (ctx, x, y, s, rot, fill) => {
+      const { inset } = getTileGeometryParams(s);
+      const isRotated = rot === 90 || rot === 270;
+      const w = (isRotated ? studHeight * s : studWidth * s) - 2 * inset;
+      const h = (isRotated ? studWidth * s : studHeight * s) - 2 * inset;
+      const r = Math.min(w, h) / 2;
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.roundRect(x + inset, y + inset, w, h, r);
+      ctx.fill();
+    },
+    getEpsPostScript: (x, y, s, rot, r, g, b) => {
+      const { inset } = getTileGeometryParams(s);
+      const isRotated = rot === 90 || rot === 270;
+      const w = (isRotated ? studHeight * s : studWidth * s) - 2 * inset;
+      const h = (isRotated ? studWidth * s : studHeight * s) - 2 * inset;
+      return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor ${(x + inset).toFixed(2)} ${(y + inset).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} rectfill\n`;
+    },
+  };
+}
+
+// Map for quick O(1) tile lookup
 export const TILE_MAP = new Map<string, TileType>(
   LEGO_TILES.map((t) => [t.id, t])
 );
+
+/**
+ * Register a new tile into the runtime library and tile map.
+ */
+export function registerTile(tile: TileType) {
+  const existingIdx = LEGO_TILES.findIndex((t) => t.id === tile.id);
+  if (existingIdx >= 0) {
+    LEGO_TILES[existingIdx] = tile;
+  } else {
+    LEGO_TILES.push(tile);
+  }
+  TILE_MAP.set(tile.id, tile);
+}

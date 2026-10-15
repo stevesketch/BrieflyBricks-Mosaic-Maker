@@ -9,7 +9,7 @@ import {
   MosaicState,
   SavedDesign,
 } from './types/mosaic';
-import { LEGO_TILES } from './constants/legoTiles';
+import { LEGO_TILES, registerTile } from './constants/legoTiles';
 import { INITIAL_LEGO_PALETTE } from './constants/legoColors';
 import { STARTER_PRESETS, StarterPreset } from './presets/starterMosaics';
 import { Header } from './components/Header';
@@ -21,6 +21,7 @@ import { BOMModal } from './components/BOMModal';
 import { BaseplateModal } from './components/BaseplateModal';
 import { PresetModal } from './components/PresetModal';
 import { SavedDesignsModal } from './components/SavedDesignsModal';
+import { AddTileModal } from './components/AddTileModal';
 
 const MAX_HISTORY = 40;
 
@@ -42,7 +43,7 @@ export default function App() {
 
   // Palette State
   const [palette, setPalette] = useState<PaletteColor[]>(INITIAL_LEGO_PALETTE);
-  const [selectedColor, setSelectedColor] = useState<string>('#C91A09'); // Classic LEGO Red
+  const [selectedColor, setSelectedColor] = useState<string>('#0090D7'); // Briefly Deep Azure
 
   // Tile Selection & Rotation
   const [selectedTileType, setSelectedTileType] = useState<TileType>(LEGO_TILES[0]);
@@ -57,6 +58,7 @@ export default function App() {
   const [isSizeModalOpen, setIsSizeModalOpen] = useState(false);
   const [isPresetsOpen, setIsPresetsOpen] = useState(false);
   const [isSavedDesignsOpen, setIsSavedDesignsOpen] = useState(false);
+  const [isAddTileOpen, setIsAddTileOpen] = useState(false);
 
   // Push new state onto history stack
   const commitTiles = useCallback(
@@ -295,6 +297,7 @@ export default function App() {
                 setSelectedTileType(t);
                 setActiveTool('place');
               }}
+              onOpenAddTile={() => setIsAddTileOpen(true)}
             />
           </div>
 
@@ -372,6 +375,17 @@ export default function App() {
         activeDesignId={activeDesignId}
         onLoadDesign={handleLoadSavedDesign}
         onDesignSaved={(design) => setActiveDesignId(design.id)}
+      />
+
+      <AddTileModal
+        isOpen={isAddTileOpen}
+        onClose={() => setIsAddTileOpen(false)}
+        selectedColor={selectedColor}
+        onAddTile={(newTile) => {
+          registerTile(newTile);
+          setSelectedTileType(newTile);
+          setActiveTool('place');
+        }}
       />
     </div>
   );
