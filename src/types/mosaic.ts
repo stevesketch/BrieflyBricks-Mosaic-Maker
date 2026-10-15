@@ -20,6 +20,8 @@ export interface TileType {
   getOccupiedCells: (rotation: Rotation) => CellCoord[];
   // SVG path or element generator at given size (S = stud size in px), offset (x, y)
   renderSvg: (x: number, y: number, s: number, rotation: Rotation, fill: string, id?: string) => ReactNode;
+  // Raw SVG XML markup generator for SVG exports
+  renderSvgXml?: (x: number, y: number, s: number, rotation: Rotation, fill: string) => string;
   // Canvas 2D path drawer
   drawCanvas: (ctx: CanvasRenderingContext2D, x: number, y: number, s: number, rotation: Rotation, fill: string) => void;
   // EPS vector PostScript code generator

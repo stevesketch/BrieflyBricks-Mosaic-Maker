@@ -45,7 +45,9 @@ export function generateSvgString(mosaic: MosaicState, studSize = 24): string {
     const rot = tile.rotation;
     const fill = tile.color;
 
-    if (tile.typeId === 'tile-1x1-round') {
+    if (tileType.renderSvgXml) {
+      shapesSvg += `  ${tileType.renderSvgXml(x, y, s, rot, fill)}\n`;
+    } else if (tile.typeId === 'tile-1x1-round') {
       const cx = x + s / 2;
       const cy = y + s / 2;
       const r = s / 2 - inset;
@@ -147,10 +149,24 @@ export function generateSvgString(mosaic: MosaicState, studSize = 24): string {
       const h = (isHoriz ? s : 2 * s) - 2 * inset;
       const r = (isHoriz ? h : w) / 2;
       shapesSvg += `  <rect x="${(x + inset).toFixed(2)}" y="${(y + inset).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${r.toFixed(2)}" ry="${r.toFixed(2)}" fill="${fill}" stroke="none"/>\n`;
-    } else if (tile.typeId === 'tile-1x1-heart') {
-      const scaleS = s - 2 * inset;
-      const transform = `translate(${(x + s / 2).toFixed(2)}, ${(y + s / 2).toFixed(2)}) rotate(${rot}) translate(${(-scaleS / 2).toFixed(2)}, ${(-scaleS / 2).toFixed(2)}) scale(${scaleS.toFixed(2)})`;
-      shapesSvg += `  <path d="M 0.5 0.85 C 0.5 0.85 0.08 0.55 0.08 0.3 C 0.08 0.12 0.22 0.05 0.35 0.05 C 0.44 0.05 0.48 0.1 0.5 0.16 C 0.52 0.1 0.56 0.05 0.65 0.05 C 0.78 0.05 0.92 0.12 0.92 0.3 C 0.92 0.55 0.5 0.85 0.5 0.85 Z" fill="${fill}" stroke="none" transform="${transform}"/>\n`;
+    } else if (tile.typeId === 'tile-2x4-oval') {
+      const isHoriz = rot === 0 || rot === 180;
+      const w = (isHoriz ? 4 * s : 2 * s) - 2 * inset;
+      const h = (isHoriz ? 2 * s : 4 * s) - 2 * inset;
+      const r = Math.min(w, h) / 2;
+      shapesSvg += `  <rect x="${(x + inset).toFixed(2)}" y="${(y + inset).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${r.toFixed(2)}" ry="${r.toFixed(2)}" fill="${fill}" stroke="none"/>\n`;
+    } else if (tile.typeId === 'tile-2x2-wedge-triangular') {
+      const cx = x + s;
+      const cy = y + s;
+      const half = s - inset;
+      const pathData = `M ${(-half + radius).toFixed(2)} ${(-half).toFixed(2)} L ${(half - radius).toFixed(2)} ${(-half).toFixed(2)} Q ${half.toFixed(2)} ${(-half).toFixed(2)} ${(half - radius).toFixed(2)} ${(-half + radius).toFixed(2)} L ${(-half + radius).toFixed(2)} ${(half - radius).toFixed(2)} Q ${(-half).toFixed(2)} ${half.toFixed(2)} ${(-half).toFixed(2)} ${(half - radius).toFixed(2)} L ${(-half).toFixed(2)} ${(-half + radius).toFixed(2)} Q ${(-half).toFixed(2)} ${(-half).toFixed(2)} ${(-half + radius).toFixed(2)} ${(-half).toFixed(2)} Z`;
+      shapesSvg += `  <path d="${pathData}" fill="${fill}" stroke="none" transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot})"/>\n`;
+    } else {
+      // General fallback for custom tiles
+      const isRotated = rot === 90 || rot === 270;
+      const tw = (isRotated ? tileType.studHeight : tileType.studWidth) * s - 2 * inset;
+      const th = (isRotated ? tileType.studWidth : tileType.studHeight) * s - 2 * inset;
+      shapesSvg += `  <rect x="${(x + inset).toFixed(2)}" y="${(y + inset).toFixed(2)}" width="${tw.toFixed(2)}" height="${th.toFixed(2)}" rx="${radius.toFixed(2)}" ry="${radius.toFixed(2)}" fill="${fill}" stroke="none"/>\n`;
     }
   }
 

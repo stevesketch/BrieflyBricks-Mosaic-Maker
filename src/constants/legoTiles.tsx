@@ -666,56 +666,135 @@ export const LEGO_TILES: TileType[] = [
     },
   },
 
-  // 12. 1x1 Heart Tile (#39739)
+
+  // 14. Tile, Round 2 x 4 Oval (#66857)
   {
-    id: 'tile-1x1-heart',
-    name: '1×1 Heart Tile',
-    legoPartNumber: '39739',
+    id: 'tile-2x4-oval',
+    name: '2×4 Oval Tile',
+    legoPartNumber: '66857',
     category: 'curved',
-    studWidth: 1,
-    studHeight: 1,
-    getOccupiedCells: () => [{ dx: 0, dy: 0 }],
+    studWidth: 4,
+    studHeight: 2,
+    getOccupiedCells: (rot) => {
+      if (rot === 0 || rot === 180) {
+        return [
+          { dx: 0, dy: 0 }, { dx: 1, dy: 0 }, { dx: 2, dy: 0 }, { dx: 3, dy: 0 },
+          { dx: 0, dy: 1 }, { dx: 1, dy: 1 }, { dx: 2, dy: 1 }, { dx: 3, dy: 1 },
+        ];
+      }
+      return [
+        { dx: 0, dy: 0 }, { dx: 1, dy: 0 },
+        { dx: 0, dy: 1 }, { dx: 1, dy: 1 },
+        { dx: 0, dy: 2 }, { dx: 1, dy: 2 },
+        { dx: 0, dy: 3 }, { dx: 1, dy: 3 },
+      ];
+    },
     renderSvg: (x, y, s, rot, fill, id) => {
       const { inset } = getTileGeometryParams(s);
-      const scaleS = s - 2 * inset;
-      const transform = `translate(${x + s / 2}, ${y + s / 2}) rotate(${rot}) translate(${-scaleS / 2}, ${-scaleS / 2}) scale(${scaleS})`;
+      const isHoriz = rot === 0 || rot === 180;
+      const w = (isHoriz ? 4 * s : 2 * s) - 2 * inset;
+      const h = (isHoriz ? 2 * s : 4 * s) - 2 * inset;
+      const r = Math.min(w, h) / 2;
       return (
-        <path
+        <rect
           key={id}
-          d="M 0.5 0.85 C 0.5 0.85 0.08 0.55 0.08 0.3 C 0.08 0.12 0.22 0.05 0.35 0.05 C 0.44 0.05 0.48 0.1 0.5 0.16 C 0.52 0.1 0.56 0.05 0.65 0.05 C 0.78 0.05 0.92 0.12 0.92 0.3 C 0.92 0.55 0.5 0.85 0.5 0.85 Z"
+          x={x + inset}
+          y={y + inset}
+          width={w}
+          height={h}
+          rx={r}
+          ry={r}
           fill={fill}
           stroke="none"
-          transform={transform}
         />
       );
     },
     drawCanvas: (ctx, x, y, s, rot, fill) => {
       const { inset } = getTileGeometryParams(s);
-      const scaleS = s - 2 * inset;
-      ctx.save();
-      ctx.translate(x + s / 2, y + s / 2);
-      ctx.rotate((rot * Math.PI) / 180);
-      ctx.scale(scaleS, scaleS);
-      ctx.translate(-0.5, -0.5);
+      const isHoriz = rot === 0 || rot === 180;
+      const w = (isHoriz ? 4 * s : 2 * s) - 2 * inset;
+      const h = (isHoriz ? 2 * s : 4 * s) - 2 * inset;
+      const r = Math.min(w, h) / 2;
       ctx.fillStyle = fill;
       ctx.beginPath();
-      ctx.moveTo(0.5, 0.85);
-      ctx.bezierCurveTo(0.5, 0.85, 0.08, 0.55, 0.08, 0.3);
-      ctx.bezierCurveTo(0.08, 0.12, 0.22, 0.05, 0.35, 0.05);
-      ctx.bezierCurveTo(0.44, 0.05, 0.48, 0.1, 0.5, 0.16);
-      ctx.bezierCurveTo(0.52, 0.1, 0.56, 0.05, 0.65, 0.05);
-      ctx.bezierCurveTo(0.78, 0.05, 0.92, 0.12, 0.92, 0.3);
-      ctx.bezierCurveTo(0.92, 0.55, 0.5, 0.85, 0.5, 0.85);
+      ctx.roundRect(x + inset, y + inset, w, h, r);
+      ctx.fill();
+    },
+    getEpsPostScript: (x, y, s, rot, r, g, b) => {
+      const { inset } = getTileGeometryParams(s);
+      const isHoriz = rot === 0 || rot === 180;
+      const w = (isHoriz ? 4 * s : 2 * s) - 2 * inset;
+      const h = (isHoriz ? 2 * s : 4 * s) - 2 * inset;
+      return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor ${(x + inset).toFixed(2)} ${(y + inset).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} rectfill\n`;
+    },
+  },
+
+
+
+  // 18. Tile, Modified 2 x 2 Wedge Triangular (#35787)
+  {
+    id: 'tile-2x2-wedge-triangular',
+    name: '2×2 Triangular Wedge',
+    legoPartNumber: '35787',
+    category: '2x2',
+    studWidth: 2,
+    studHeight: 2,
+    getOccupiedCells: () => [
+      { dx: 0, dy: 0 },
+      { dx: 1, dy: 0 },
+      { dx: 0, dy: 1 },
+      { dx: 1, dy: 1 },
+    ],
+    renderSvg: (x, y, s, rot, fill, id) => {
+      const { inset, radius: r } = getTileGeometryParams(s);
+      const cx = x + s;
+      const cy = y + s;
+      const half = s - inset;
+      // Right triangle: top edge and left edge straight, diagonal hypotenuse
+      const pathData = `M ${-half + r} ${-half} L ${half - r} ${-half} Q ${half} ${-half} ${half - r} ${-half + r} L ${-half + r} ${half - r} Q ${-half} ${half} ${-half} ${half - r} L ${-half} ${-half + r} Q ${-half} ${-half} ${-half + r} ${-half} Z`;
+
+      return (
+        <path
+          key={id}
+          d={pathData}
+          fill={fill}
+          stroke="none"
+          transform={`translate(${cx}, ${cy}) rotate(${rot})`}
+        />
+      );
+    },
+    drawCanvas: (ctx, x, y, s, rot, fill) => {
+      const { inset, radius: r } = getTileGeometryParams(s);
+      const cx = x + s;
+      const cy = y + s;
+      const half = s - inset;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((rot * Math.PI) / 180);
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.moveTo(-half + r, -half);
+      ctx.lineTo(half - r, -half);
+      ctx.quadraticCurveTo(half, -half, half - r, -half + r);
+      ctx.lineTo(-half + r, half - r);
+      ctx.quadraticCurveTo(-half, half, -half, half - r);
+      ctx.lineTo(-half, -half + r);
+      ctx.quadraticCurveTo(-half, -half, -half + r, -half);
       ctx.closePath();
       ctx.fill();
       ctx.restore();
     },
     getEpsPostScript: (x, y, s, rot, r, g, b) => {
       const { inset } = getTileGeometryParams(s);
-      const scaleS = s - 2 * inset;
-      return `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${(x + s / 2).toFixed(2)} ${(y + s / 2).toFixed(2)} translate\n${rot} rotate\n${scaleS.toFixed(2)} ${scaleS.toFixed(2)} scale\n-0.5 -0.5 translate\nnewpath 0.5 0.85 moveto 0.5 0.85 0.08 0.55 0.08 0.3 curveto 0.08 0.12 0.22 0.05 0.35 0.05 curveto 0.44 0.05 0.48 0.1 0.5 0.16 curveto 0.52 0.1 0.56 0.05 0.65 0.05 curveto 0.78 0.05 0.92 0.12 0.92 0.3 curveto 0.92 0.55 0.5 0.85 0.5 0.85 curveto closepath fill\ngrestore\n`;
+      const cx = x + s;
+      const cy = y + s;
+      const half = s - inset;
+      return `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rot} rotate\nnewpath\n${(-half).toFixed(2)} ${(-half).toFixed(2)} moveto\n${half.toFixed(2)} ${(-half).toFixed(2)} lineto\n${(-half).toFixed(2)} ${half.toFixed(2)} lineto\nclosepath fill\ngrestore\n`;
     },
   },
+
+
 ];
 
 // ============================================================================
@@ -923,6 +1002,164 @@ export function createCapsuleTile(params: {
       const isRotated = rot === 90 || rot === 270;
       const w = (isRotated ? studHeight * s : studWidth * s) - 2 * inset;
       const h = (isRotated ? studWidth * s : studHeight * s) - 2 * inset;
+      return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor ${(x + inset).toFixed(2)} ${(y + inset).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} rectfill\n`;
+    },
+  };
+}
+
+/**
+ * Creates a custom tile from an SVG path or SVG markup.
+ *
+ * Parameters:
+ * - id: Unique tile ID (e.g. 'custom-tile-star')
+ * - name: Display name (e.g. '1×1 Star Tile')
+ * - legoPartNumber: Optional part number or label (e.g. 'Custom', '99999')
+ * - studWidth: Width in grid cells (studs)
+ * - studHeight: Height in grid cells (studs)
+ * - category: '1x1' | 'bars' | 'curved' | '2x2'
+ * - svgPath: SVG path d="..." string or complete <svg> / <path> markup
+ * - viewBox: Optional viewBox string, defaults to '0 0 100 100' or extracted from svg
+ * - occupiedCells: Optional relative grid cells [{dx, dy}], defaults to all cells in studWidth x studHeight
+ */
+export interface CustomSvgTileOptions {
+  id: string;
+  name: string;
+  legoPartNumber?: string;
+  studWidth: number;
+  studHeight: number;
+  category?: TileCategory;
+  svgPath: string;
+  viewBox?: string;
+  occupiedCells?: CellCoord[];
+}
+
+export function createCustomSvgTile(params: CustomSvgTileOptions): TileType {
+  const {
+    id,
+    name,
+    legoPartNumber = 'Custom',
+    studWidth,
+    studHeight,
+    category = studWidth === 1 && studHeight === 1 ? '1x1' : studWidth <= 2 && studHeight <= 2 ? '2x2' : 'curved',
+    svgPath,
+    viewBox = '0 0 100 100',
+    occupiedCells,
+  } = params;
+
+  // Extract path 'd' if wrapped in <svg> or <path>
+  let cleanD = svgPath.trim();
+  const dMatch = cleanD.match(/d=["']([^"']+)["']/i);
+  if (dMatch) {
+    cleanD = dMatch[1].trim();
+  }
+
+  // Extract viewBox if specified inside svg string
+  let vb = viewBox.trim();
+  const vbMatch = svgPath.match(/viewBox=["']([^"']+)["']/i);
+  if (vbMatch) {
+    vb = vbMatch[1].trim();
+  }
+
+  const parts = vb.split(/[\s,]+/).map(Number);
+  const vbMinX = !isNaN(parts[0]) ? parts[0] : 0;
+  const vbMinY = !isNaN(parts[1]) ? parts[1] : 0;
+  const vbW = !isNaN(parts[2]) && parts[2] > 0 ? parts[2] : 100;
+  const vbH = !isNaN(parts[3]) && parts[3] > 0 ? parts[3] : 100;
+
+  return {
+    id,
+    name,
+    legoPartNumber,
+    category,
+    studWidth,
+    studHeight,
+    getOccupiedCells: (rot) => {
+      if (!occupiedCells || occupiedCells.length === 0) {
+        const isRot = rot === 90 || rot === 270;
+        const w = isRot ? studHeight : studWidth;
+        const h = isRot ? studWidth : studHeight;
+        const cells: CellCoord[] = [];
+        for (let dy = 0; dy < h; dy++) {
+          for (let dx = 0; dx < w; dx++) {
+            cells.push({ dx, dy });
+          }
+        }
+        return cells;
+      }
+      return occupiedCells.map(({ dx, dy }) => {
+        if (rot === 0) return { dx, dy };
+        if (rot === 90) return { dx: studHeight - 1 - dy, dy: dx };
+        if (rot === 180) return { dx: studWidth - 1 - dx, dy: studHeight - 1 - dy };
+        return { dx: dy, dy: studWidth - 1 - dx };
+      });
+    },
+    renderSvg: (x, y, s, rot, fill, keyId) => {
+      const { inset } = getTileGeometryParams(s);
+      const isRot = rot === 90 || rot === 270;
+      const targetW = (isRot ? studHeight * s : studWidth * s);
+      const targetH = (isRot ? studWidth * s : studHeight * s);
+      const cx = x + targetW / 2;
+      const cy = y + targetH / 2;
+      const innerW = studWidth * s - 2 * inset;
+      const innerH = studHeight * s - 2 * inset;
+      const scaleX = innerW / vbW;
+      const scaleY = innerH / vbH;
+
+      return (
+        <g
+          key={keyId}
+          transform={`translate(${cx}, ${cy}) rotate(${rot}) translate(${-innerW / 2}, ${-innerH / 2}) scale(${scaleX}, ${scaleY}) translate(${-vbMinX}, ${-vbMinY})`}
+        >
+          <path d={cleanD} fill={fill} stroke="none" />
+        </g>
+      );
+    },
+    renderSvgXml: (x, y, s, rot, fill) => {
+      const { inset } = getTileGeometryParams(s);
+      const isRot = rot === 90 || rot === 270;
+      const targetW = (isRot ? studHeight * s : studWidth * s);
+      const targetH = (isRot ? studWidth * s : studHeight * s);
+      const cx = x + targetW / 2;
+      const cy = y + targetH / 2;
+      const innerW = studWidth * s - 2 * inset;
+      const innerH = studHeight * s - 2 * inset;
+      const scaleX = innerW / vbW;
+      const scaleY = innerH / vbH;
+
+      return `<g transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot}) translate(${(-innerW / 2).toFixed(2)}, ${(-innerH / 2).toFixed(2)}) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)}) translate(${-vbMinX}, ${-vbMinY})"><path d="${cleanD}" fill="${fill}" stroke="none"/></g>`;
+    },
+    drawCanvas: (ctx, x, y, s, rot, fill) => {
+      const { inset } = getTileGeometryParams(s);
+      const isRot = rot === 90 || rot === 270;
+      const targetW = (isRot ? studHeight * s : studWidth * s);
+      const targetH = (isRot ? studWidth * s : studHeight * s);
+      const cx = x + targetW / 2;
+      const cy = y + targetH / 2;
+      const innerW = studWidth * s - 2 * inset;
+      const innerH = studHeight * s - 2 * inset;
+      const scaleX = innerW / vbW;
+      const scaleY = innerH / vbH;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((rot * Math.PI) / 180);
+      ctx.translate(-innerW / 2, -innerH / 2);
+      ctx.scale(scaleX, scaleY);
+      ctx.translate(-vbMinX, -vbMinY);
+      ctx.fillStyle = fill;
+      try {
+        const p = new Path2D(cleanD);
+        ctx.fill(p);
+      } catch (err) {
+        ctx.fillRect(vbMinX, vbMinY, vbW, vbH);
+      }
+      ctx.restore();
+    },
+    getEpsPostScript: (x, y, s, rot, r, g, b) => {
+      const { inset } = getTileGeometryParams(s);
+      const isRot = rot === 90 || rot === 270;
+      const w = (isRot ? studHeight * s : studWidth * s) - 2 * inset;
+      const h = (isRot ? studWidth * s : studHeight * s) - 2 * inset;
       return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor ${(x + inset).toFixed(2)} ${(y + inset).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} rectfill\n`;
     },
   };
