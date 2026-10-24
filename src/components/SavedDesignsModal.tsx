@@ -28,6 +28,7 @@ interface SavedDesignsModalProps {
   currentRows: number;
   currentTiles: PlacedTile[];
   currentPalette: PaletteColor[];
+  currentCanvasBg?: string;
   activeDesignId: string | null;
   onLoadDesign: (design: SavedDesign) => void;
   onDesignSaved: (design: SavedDesign) => void;
@@ -40,6 +41,7 @@ export const SavedDesignsModal: React.FC<SavedDesignsModalProps> = ({
   currentRows,
   currentTiles,
   currentPalette,
+  currentCanvasBg,
   activeDesignId,
   onLoadDesign,
   onDesignSaved,
@@ -79,7 +81,9 @@ export const SavedDesignsModal: React.FC<SavedDesignsModalProps> = ({
       currentCols,
       currentRows,
       currentTiles,
-      currentPalette
+      currentPalette,
+      undefined,
+      currentCanvasBg
     );
     loadDesigns();
     onDesignSaved(saved);
@@ -95,7 +99,8 @@ export const SavedDesignsModal: React.FC<SavedDesignsModalProps> = ({
       currentRows,
       currentTiles,
       currentPalette,
-      activeDesignId
+      activeDesignId,
+      currentCanvasBg
     );
     loadDesigns();
     onDesignSaved(saved);

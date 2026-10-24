@@ -58,7 +58,8 @@ export function checkTileCollision(
   gridCols: number,
   gridRows: number,
   spatialGrid: Map<string, string>,
-  ignoreTileId?: string
+  ignoreTileId?: string,
+  allowOverlap: boolean = false
 ): CollisionResult {
   const cells = getTileOccupiedAbsoluteCells(typeId, x, y, rotation);
   const conflictingTileIds = new Set<string>();
@@ -80,7 +81,7 @@ export function checkTileCollision(
     }
   }
 
-  if (conflictingTileIds.size > 0) {
+  if (conflictingTileIds.size > 0 && !allowOverlap) {
     return {
       valid: false,
       reason: 'overlap',
@@ -92,5 +93,6 @@ export function checkTileCollision(
   return {
     valid: true,
     occupiedCells: cells,
+    conflictingTileIds: conflictingTileIds.size > 0 ? Array.from(conflictingTileIds) : undefined,
   };
 }

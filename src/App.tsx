@@ -41,9 +41,11 @@ export default function App() {
   const [history, setHistory] = useState<PlacedTile[][]>(() => [initialPreset.tiles]);
   const [historyIndex, setHistoryIndex] = useState<number>(0);
 
-  // Palette State
+  // Palette & Canvas Background State
   const [palette, setPalette] = useState<PaletteColor[]>(INITIAL_LEGO_PALETTE);
   const [selectedColor, setSelectedColor] = useState<string>('#0090D7'); // Briefly Deep Azure
+  const [canvasBg, setCanvasBg] = useState<string>('#1e1e1e'); // Baseplate background color
+  const [collisionEnabled, setCollisionEnabled] = useState<boolean>(true); // Collision detection toggle
 
   // Tile Selection & Rotation
   const [selectedTileType, setSelectedTileType] = useState<TileType>(LEGO_TILES[0]);
@@ -238,6 +240,9 @@ export default function App() {
     if (design.palette && design.palette.length > 0) {
       setPalette(design.palette);
     }
+    if (design.canvasBg) {
+      setCanvasBg(design.canvasBg);
+    }
     commitTiles(design.tiles);
   };
 
@@ -259,6 +264,7 @@ export default function App() {
     rows,
     tiles,
     palette,
+    canvasBg,
   };
 
   return (
@@ -325,6 +331,10 @@ export default function App() {
             selectedColor={selectedColor}
             rotation={rotation}
             activeTool={activeTool}
+            canvasBg={canvasBg}
+            onChangeCanvasBg={setCanvasBg}
+            collisionEnabled={collisionEnabled}
+            onToggleCollision={() => setCollisionEnabled((prev) => !prev)}
             onSelectTool={setActiveTool}
             onRotate={handleRotateCurrent}
             onPlaceTile={handlePlaceTile}
@@ -372,6 +382,7 @@ export default function App() {
         currentRows={rows}
         currentTiles={tiles}
         currentPalette={palette}
+        currentCanvasBg={canvasBg}
         activeDesignId={activeDesignId}
         onLoadDesign={handleLoadSavedDesign}
         onDesignSaved={(design) => setActiveDesignId(design.id)}

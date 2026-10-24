@@ -30,7 +30,8 @@ export function saveDesignToStorage(
   rows: number,
   tiles: PlacedTile[],
   palette: PaletteColor[],
-  existingId?: string
+  existingId?: string,
+  canvasBg?: string
 ): SavedDesign {
   const currentDesigns = getSavedDesigns();
   const now = Date.now();
@@ -47,6 +48,7 @@ export function saveDesignToStorage(
         rows,
         tiles,
         palette,
+        canvasBg: canvasBg ?? currentDesigns[foundIdx].canvasBg,
         updatedAt: now,
       };
       currentDesigns[foundIdx] = target;
@@ -58,6 +60,7 @@ export function saveDesignToStorage(
         rows,
         tiles,
         palette,
+        canvasBg,
         createdAt: now,
         updatedAt: now,
       };
@@ -71,6 +74,7 @@ export function saveDesignToStorage(
       rows,
       tiles,
       palette,
+      canvasBg,
       createdAt: now,
       updatedAt: now,
     };

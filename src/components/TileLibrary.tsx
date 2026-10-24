@@ -99,9 +99,10 @@ export const TileLibrary: React.FC<TileLibraryProps> = ({
         <div className="grid grid-cols-2 gap-2">
           {filteredTiles.map((tile) => {
             const isSelected = selectedTileType.id === tile.id;
-            const previewSize = 28;
             const containerWidth = 48;
             const containerHeight = 48;
+            const maxDim = Math.max(tile.studWidth, tile.studHeight, 1);
+            const previewSize = Math.min(28, 40 / maxDim);
 
             return (
               <div

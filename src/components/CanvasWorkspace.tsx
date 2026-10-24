@@ -25,6 +25,7 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
+  Palette,
 } from 'lucide-react';
 
 interface CanvasWorkspaceProps {
@@ -35,6 +36,10 @@ interface CanvasWorkspaceProps {
   selectedColor: string;
   rotation: Rotation;
   activeTool: ToolType;
+  canvasBg?: string;
+  onChangeCanvasBg?: (color: string) => void;
+  collisionEnabled?: boolean;
+  onToggleCollision?: () => void;
   onSelectTool: (tool: ToolType) => void;
   onRotate: () => void;
   onPlaceTile: (tile: PlacedTile) => void;
@@ -86,6 +91,19 @@ const PlacedTilesLayer = React.memo<{
   );
 });
 
+export const CANVAS_BG_PRESETS = [
+  { name: 'Dark Slate', hex: '#1e1e1e' },
+  { name: 'Classic Green', hex: '#237841' },
+  { name: 'Deep Azure', hex: '#0090D7' },
+  { name: 'Dark Pink', hex: '#C85786' },
+  { name: 'Bright Yellow', hex: '#FFE853' },
+  { name: 'Sand / Tan', hex: '#d7c59a' },
+  { name: 'Stone Gray', hex: '#9ca3af' },
+  { name: 'Royal Blue', hex: '#0055bf' },
+  { name: 'Pure White', hex: '#ffffff' },
+  { name: 'Jet Black', hex: '#0a0a0a' },
+];
+
 export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   cols,
   rows,
@@ -94,6 +112,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   selectedColor,
   rotation,
   activeTool,
+  canvasBg = '#1e1e1e',
+  onChangeCanvasBg,
+  collisionEnabled: controlledCollisionEnabled,
+  onToggleCollision,
   onSelectTool,
   onRotate,
   onPlaceTile,
@@ -111,9 +133,15 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
-  // Grid visual guide toggle
+  // Grid visual guide toggle & Canvas BG picker toggle
   const [showGridLines, setShowGridLines] = useState(true);
+  const [isBgPickerOpen, setIsBgPickerOpen] = useState(false);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
+
+  // Collision detection toggle (controlled or internal state)
+  const [localCollisionEnabled, setLocalCollisionEnabled] = useState(true);
+  const isCollisionOn = controlledCollisionEnabled !== undefined ? controlledCollisionEnabled : localCollisionEnabled;
+  const toggleCollision = onToggleCollision ?? (() => setLocalCollisionEnabled((prev) => !prev));
 
   // Hover & selection state
   const [hoverStud, setHoverStud] = useState<GridCell | null>(null);
@@ -189,7 +217,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         cols,
         rows,
         spatialGrid,
-        selectedTile.id
+        selectedTile.id,
+        !isCollisionOn
       );
       return {
         typeId: selectedTile.typeId,
@@ -211,7 +240,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         rotation,
         cols,
         rows,
-        spatialGrid
+        spatialGrid,
+        undefined,
+        !isCollisionOn
       );
       return {
         typeId: selectedTileType.id,
@@ -237,9 +268,10 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     cols,
     rows,
     spatialGrid,
+    isCollisionOn,
   ]);
 
-  // Handle keyboard shortcuts (R for rotate, V, P, B, E, I, Delete)
+  // Handle keyboard shortcuts (R for rotate, C for collisions, V, P, B, E, I, Delete)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't intercept if user is typing in an input
@@ -266,7 +298,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
             cols,
             rows,
             spatialGrid,
-            selectedTile.id
+            selectedTile.id,
+            !isCollisionOn
           );
           if (result.valid) {
             onRotateTile(selectedTile.id, nextRot);
@@ -278,6 +311,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
         } else {
           onRotate();
         }
+      } else if (e.key === 'c' || e.key === 'C') {
+        e.preventDefault();
+        toggleCollision();
       } else if (e.key === 'v' || e.key === 'V') {
         onSelectTool('select');
       } else if (e.key === 'p' || e.key === 'P') {
@@ -316,6 +352,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
     cols,
     rows,
     spatialGrid,
+    isCollisionOn,
+    toggleCollision,
     onRotate,
     onRotateTile,
     onSelectTool,
@@ -454,7 +492,9 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
       rotation,
       cols,
       rows,
-      spatialGrid
+      spatialGrid,
+      undefined,
+      !isCollisionOn
     );
 
     if (result.valid) {
@@ -566,10 +606,111 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
           <RotateCw className="w-3.5 h-3.5" />
           <span className="font-mono tabular-nums">{rotation}°</span>
         </button>
+
+        <div className="h-4 w-px bg-neutral-800 mx-0.5" />
+
+        {/* Collision Detection Toggle Switch */}
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-neutral-900/60 hover:bg-neutral-800/60 transition-colors">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isCollisionOn}
+            onClick={toggleCollision}
+            title={
+              isCollisionOn
+                ? 'Collision Detection: ON (overlap blocked). Click to turn OFF and allow tile overlapping (Hotkey: C).'
+                : 'Collision Detection: OFF (tiles can overlap). Click to turn ON (Hotkey: C).'
+            }
+            className="flex items-center gap-2 cursor-pointer select-none"
+          >
+            <span className="text-xs font-medium text-neutral-300">
+              Collisions
+            </span>
+            <div
+              className={`relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out ${
+                isCollisionOn ? 'bg-emerald-500' : 'bg-neutral-700'
+              }`}
+            >
+              <span
+                aria-hidden="true"
+                className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out mt-0.5 ml-0.5 ${
+                  isCollisionOn ? 'translate-x-3' : 'translate-x-0'
+                }`}
+              />
+            </div>
+            <span
+              className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded leading-none ${
+                isCollisionOn
+                  ? 'text-emerald-400 bg-emerald-500/10'
+                  : 'text-amber-400 bg-amber-500/10'
+              }`}
+            >
+              {isCollisionOn ? 'ON' : 'OFF'}
+            </span>
+          </button>
+        </div>
       </div>
 
-      {/* Floating Canvas Controls (Zoom, Fit, Grid Toggle) */}
+      {/* Floating Canvas Controls (Zoom, Fit, Grid Toggle, Canvas Background) */}
       <div className="absolute top-4 right-4 z-20 flex items-center gap-1 p-1 bg-neutral-900/90 backdrop-blur border border-neutral-800 rounded-xl shadow-lg">
+        {/* Canvas Background Color Picker */}
+        <div className="relative">
+          <button
+            onClick={() => setIsBgPickerOpen(!isBgPickerOpen)}
+            title={`Change baseplate background color (Current: ${canvasBg})`}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
+          >
+            <span
+              className="w-3.5 h-3.5 rounded-full border border-neutral-600 shrink-0 shadow-xs"
+              style={{ backgroundColor: canvasBg }}
+            />
+            <span className="hidden md:inline text-[11px]">Baseplate</span>
+          </button>
+
+          {isBgPickerOpen && (
+            <div className="absolute top-full right-0 mt-2 p-3 bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl z-50 w-64 space-y-2.5 animate-in fade-in zoom-in-95">
+              <div className="flex items-center justify-between pb-1 border-b border-neutral-800 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+                <span>Baseplate Color</span>
+                <span className="font-mono text-neutral-300 normal-case">{canvasBg}</span>
+              </div>
+              <div className="grid grid-cols-5 gap-1.5">
+                {CANVAS_BG_PRESETS.map((preset) => (
+                  <button
+                    key={preset.hex}
+                    onClick={() => {
+                      onChangeCanvasBg?.(preset.hex);
+                    }}
+                    title={preset.name}
+                    className={`group relative w-10 h-10 rounded-lg border flex items-center justify-center transition-all ${
+                      canvasBg.toLowerCase() === preset.hex.toLowerCase()
+                        ? 'border-amber-400 ring-2 ring-amber-400/30 scale-105'
+                        : 'border-neutral-700 hover:border-neutral-500'
+                    }`}
+                    style={{ backgroundColor: preset.hex }}
+                  >
+                    {canvasBg.toLowerCase() === preset.hex.toLowerCase() && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-white shadow-xs" />
+                    )}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center justify-between pt-1 border-t border-neutral-800 text-xs text-neutral-300">
+                <span className="text-[11px] text-neutral-400">Custom Color</span>
+                <label className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="color"
+                    value={canvasBg}
+                    onChange={(e) => onChangeCanvasBg?.(e.target.value)}
+                    className="w-6 h-6 rounded cursor-pointer border border-neutral-700 bg-transparent"
+                  />
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="h-4 w-px bg-neutral-800 mx-0.5" />
+
         <button
           onClick={() => setShowGridLines(!showGridLines)}
           title={showGridLines ? 'Hide stud grid lines' : 'Show stud grid lines'}
@@ -649,8 +790,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
                 cx={STUD_SIZE / 2}
                 cy={STUD_SIZE / 2}
                 r={STUD_SIZE * 0.28}
-                fill="#262626"
-                stroke="#171717"
+                fill="rgba(255, 255, 255, 0.08)"
+                stroke="rgba(0, 0, 0, 0.25)"
                 strokeWidth={0.8}
               />
             </pattern>
@@ -665,7 +806,7 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               <path
                 d={`M ${STUD_SIZE} 0 L 0 0 0 ${STUD_SIZE}`}
                 fill="none"
-                stroke="rgba(255, 255, 255, 0.04)"
+                stroke="rgba(255, 255, 255, 0.06)"
                 strokeWidth={1}
               />
             </pattern>
@@ -679,8 +820,8 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               y={0}
               width={boardWidth}
               height={boardHeight}
-              fill="#1e1e1e"
-              stroke="#2e2e2e"
+              fill={canvasBg}
+              stroke="rgba(0, 0, 0, 0.4)"
               strokeWidth={2}
               rx={4}
               className="drop-shadow-2xl"
@@ -802,6 +943,21 @@ export const CanvasWorkspace: React.FC<CanvasWorkspaceProps> = ({
               style={{ backgroundColor: selectedColor }}
             />
           </div>
+          <span aria-hidden="true">·</span>
+          <button
+            onClick={toggleCollision}
+            title={isCollisionOn ? 'Collision Detection is ON (overlap blocked). Click to allow overlap.' : 'Collision Detection is OFF (overlap allowed). Click to block overlap.'}
+            className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer"
+          >
+            <span>Collisions:</span>
+            <span
+              className={`font-semibold font-mono ${
+                isCollisionOn ? 'text-emerald-400' : 'text-amber-400'
+              }`}
+            >
+              {isCollisionOn ? 'ON' : 'OFF'}
+            </span>
+          </button>
         </div>
 
         <div className="flex items-center gap-3 font-mono">

@@ -22,11 +22,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 }) => {
   const [pngScale, setPngScale] = useState<number>(2);
   const [copiedSvg, setCopiedSvg] = useState(false);
+  const [includeBackground, setIncludeBackground] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
   const handleCopySvg = () => {
-    const svgCode = generateSvgString(mosaic);
+    const svgCode = generateSvgString(mosaic, 24, { transparentBg: !includeBackground });
     navigator.clipboard.writeText(svgCode);
     setCopiedSvg(true);
     setTimeout(() => setCopiedSvg(false), 2000);
@@ -40,7 +41,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           <div>
             <h2 className="text-base font-bold text-white">Export Mosaic</h2>
             <p className="text-xs text-neutral-400 mt-0.5">
-              Pure vectors, no strokes, with transparent background.
+              Pure vector tiles, no strokes, with {includeBackground ? 'canvas background' : 'transparent background'}.
             </p>
           </div>
           <button
@@ -61,9 +62,25 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             <span className="text-neutral-500 block text-[10px] uppercase">Tiles</span>
             <span className="text-neutral-200 font-bold">{mosaic.tiles.length}</span>
           </div>
-          <div>
+          <div className="flex flex-col items-center justify-center">
             <span className="text-neutral-500 block text-[10px] uppercase">Background</span>
-            <span className="text-emerald-400 font-medium">Transparent</span>
+            <button
+              onClick={() => setIncludeBackground(!includeBackground)}
+              title="Click to toggle between Transparent and Canvas Baseplate Background"
+              className="mt-0.5 flex items-center gap-1.5 px-2 py-0.5 rounded text-xs transition-colors hover:bg-neutral-800 cursor-pointer"
+            >
+              {includeBackground ? (
+                <>
+                  <span
+                    className="w-2.5 h-2.5 rounded-full border border-neutral-600 inline-block"
+                    style={{ backgroundColor: mosaic.canvasBg || '#1e1e1e' }}
+                  />
+                  <span className="text-amber-300 font-medium font-mono text-[11px]">{mosaic.canvasBg || '#1e1e1e'}</span>
+                </>
+              ) : (
+                <span className="text-emerald-400 font-medium">Transparent</span>
+              )}
+            </button>
           </div>
         </div>
 
@@ -78,7 +95,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               <div>
                 <h4 className="text-sm font-semibold text-white">Vector SVG (.svg)</h4>
                 <p className="text-xs text-neutral-400">
-                  Infinitely scalable SVG paths. No strokes, fill only, zero background.
+                  Infinitely scalable SVG paths. No strokes, fill only{includeBackground ? ', with baseplate color' : ', transparent'}.
                 </p>
               </div>
             </div>
@@ -92,7 +109,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 <span>{copiedSvg ? 'Copied' : 'Copy'}</span>
               </button>
               <button
-                onClick={() => exportToSVG(mosaic)}
+                onClick={() => exportToSVG(mosaic, { transparentBg: !includeBackground })}
                 className="px-3.5 py-1.5 text-xs font-semibold bg-amber-400 hover:bg-amber-300 text-neutral-950 rounded-lg transition-colors"
               >
                 Download
@@ -114,14 +131,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               </div>
             </div>
             <button
-              onClick={() => exportToEPS(mosaic)}
+              onClick={() => exportToEPS(mosaic, { transparentBg: !includeBackground })}
               className="px-3.5 py-1.5 text-xs font-semibold bg-purple-500 hover:bg-purple-400 text-white rounded-lg transition-colors"
             >
               Download
             </button>
           </div>
 
-          {/* 3. Transparent PNG */}
+          {/* 3. High-Res PNG */}
           <div className="p-3.5 rounded-xl border border-neutral-800 bg-neutral-950/50 hover:border-neutral-700 transition-all space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -129,14 +146,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                   <Image className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-white">Transparent PNG (.png)</h4>
+                  <h4 className="text-sm font-semibold text-white">
+                    {includeBackground ? 'Canvas PNG (.png)' : 'Transparent PNG (.png)'}
+                  </h4>
                   <p className="text-xs text-neutral-400">
-                    High-resolution raster export with alpha channel (no background).
+                    High-resolution raster export with {includeBackground ? 'baseplate background' : 'alpha transparency'}.
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => exportToPNG(mosaic, { scale: pngScale })}
+                onClick={() => exportToPNG(mosaic, { scale: pngScale, transparentBg: !includeBackground })}
                 className="px-3.5 py-1.5 text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-white rounded-lg transition-colors"
               >
                 Download
