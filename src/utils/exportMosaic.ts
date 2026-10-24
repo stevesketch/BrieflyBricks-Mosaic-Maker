@@ -79,27 +79,34 @@ export function generateSvgString(mosaic: MosaicState, studSize = 24, options: E
       shapesSvg += `  <path d="${pathData}" fill="${fill}" stroke="none"/>\n`;
     } else if (tile.typeId === 'tile-1x2-half-round') {
       let path = '';
-      const arcR = s - inset;
       if (rot === 0) {
         const left = x + inset;
         const right = x + 2 * s - inset;
         const bottom = y + s - inset;
-        path = `M ${(left + radius).toFixed(2)} ${bottom.toFixed(2)} L ${(right - radius).toFixed(2)} ${bottom.toFixed(2)} Q ${right.toFixed(2)} ${bottom.toFixed(2)} ${right.toFixed(2)} ${(bottom - radius).toFixed(2)} A ${arcR.toFixed(2)} ${arcR.toFixed(2)} 0 0 0 ${left.toFixed(2)} ${(bottom - radius).toFixed(2)} Q ${left.toFixed(2)} ${bottom.toFixed(2)} ${(left + radius).toFixed(2)} ${bottom.toFixed(2)} Z`;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        path = `M ${(left + radius).toFixed(2)} ${bottom.toFixed(2)} L ${(right - radius).toFixed(2)} ${bottom.toFixed(2)} Q ${right.toFixed(2)} ${bottom.toFixed(2)} ${right.toFixed(2)} ${(bottom - radius).toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${left.toFixed(2)} ${(bottom - radius).toFixed(2)} Q ${left.toFixed(2)} ${bottom.toFixed(2)} ${(left + radius).toFixed(2)} ${bottom.toFixed(2)} Z`;
       } else if (rot === 90) {
         const left = x + inset;
         const top = y + inset;
         const bottom = y + 2 * s - inset;
-        path = `M ${left.toFixed(2)} ${(top + radius).toFixed(2)} L ${left.toFixed(2)} ${(bottom - radius).toFixed(2)} Q ${left.toFixed(2)} ${bottom.toFixed(2)} ${(left + radius).toFixed(2)} ${bottom.toFixed(2)} A ${arcR.toFixed(2)} ${arcR.toFixed(2)} 0 0 0 ${(left + radius).toFixed(2)} ${top.toFixed(2)} Q ${left.toFixed(2)} ${top.toFixed(2)} ${left.toFixed(2)} ${(top + radius).toFixed(2)} Z`;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        path = `M ${left.toFixed(2)} ${(top + radius).toFixed(2)} L ${left.toFixed(2)} ${(bottom - radius).toFixed(2)} Q ${left.toFixed(2)} ${bottom.toFixed(2)} ${(left + radius).toFixed(2)} ${bottom.toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${(left + radius).toFixed(2)} ${top.toFixed(2)} Q ${left.toFixed(2)} ${top.toFixed(2)} ${left.toFixed(2)} ${(top + radius).toFixed(2)} Z`;
       } else if (rot === 180) {
         const left = x + inset;
         const right = x + 2 * s - inset;
         const top = y + inset;
-        path = `M ${(right - radius).toFixed(2)} ${top.toFixed(2)} L ${(left + radius).toFixed(2)} ${top.toFixed(2)} Q ${left.toFixed(2)} ${top.toFixed(2)} ${left.toFixed(2)} ${(top + radius).toFixed(2)} A ${arcR.toFixed(2)} ${arcR.toFixed(2)} 0 0 0 ${right.toFixed(2)} ${(top + radius).toFixed(2)} Q ${right.toFixed(2)} ${top.toFixed(2)} ${(right - radius).toFixed(2)} ${top.toFixed(2)} Z`;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        path = `M ${(right - radius).toFixed(2)} ${top.toFixed(2)} L ${(left + radius).toFixed(2)} ${top.toFixed(2)} Q ${left.toFixed(2)} ${top.toFixed(2)} ${left.toFixed(2)} ${(top + radius).toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${right.toFixed(2)} ${(top + radius).toFixed(2)} Q ${right.toFixed(2)} ${top.toFixed(2)} ${(right - radius).toFixed(2)} ${top.toFixed(2)} Z`;
       } else {
         const right = x + s - inset;
         const top = y + inset;
         const bottom = y + 2 * s - inset;
-        path = `M ${right.toFixed(2)} ${(bottom - radius).toFixed(2)} L ${right.toFixed(2)} ${(top + radius).toFixed(2)} Q ${right.toFixed(2)} ${top.toFixed(2)} ${(right - radius).toFixed(2)} ${top.toFixed(2)} A ${arcR.toFixed(2)} ${arcR.toFixed(2)} 0 0 0 ${(right - radius).toFixed(2)} ${bottom.toFixed(2)} Q ${right.toFixed(2)} ${bottom.toFixed(2)} ${right.toFixed(2)} ${(bottom - radius).toFixed(2)} Z`;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        path = `M ${right.toFixed(2)} ${(bottom - radius).toFixed(2)} L ${right.toFixed(2)} ${(top + radius).toFixed(2)} Q ${right.toFixed(2)} ${top.toFixed(2)} ${(right - radius).toFixed(2)} ${top.toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${(right - radius).toFixed(2)} ${bottom.toFixed(2)} Q ${right.toFixed(2)} ${bottom.toFixed(2)} ${right.toFixed(2)} ${(bottom - radius).toFixed(2)} Z`;
       }
       shapesSvg += `  <path d="${path}" fill="${fill}" stroke="none"/>\n`;
     } else if (tile.typeId === 'tile-1x2') {
@@ -128,20 +135,20 @@ export function generateSvgString(mosaic: MosaicState, studSize = 24, options: E
       const y2 = y + 2 * s - inset;
       let path = '';
       if (rot === 0) {
-        const xm = x + s + inset;
-        const ym = y + s + inset;
+        const xm = x + s - inset;
+        const ym = y + s - inset;
         path = `M ${(x0 + radius).toFixed(2)} ${y0.toFixed(2)} L ${(x2 - radius).toFixed(2)} ${y0.toFixed(2)} Q ${x2.toFixed(2)} ${y0.toFixed(2)} ${x2.toFixed(2)} ${(y0 + radius).toFixed(2)} L ${x2.toFixed(2)} ${(ym - radius).toFixed(2)} Q ${x2.toFixed(2)} ${ym.toFixed(2)} ${(x2 - radius).toFixed(2)} ${ym.toFixed(2)} L ${(xm + radius).toFixed(2)} ${ym.toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${xm.toFixed(2)} ${(ym + radius).toFixed(2)} L ${xm.toFixed(2)} ${(y2 - radius).toFixed(2)} Q ${xm.toFixed(2)} ${y2.toFixed(2)} ${(xm - radius).toFixed(2)} ${y2.toFixed(2)} L ${(x0 + radius).toFixed(2)} ${y2.toFixed(2)} Q ${x0.toFixed(2)} ${y2.toFixed(2)} ${x0.toFixed(2)} ${(y2 - radius).toFixed(2)} L ${x0.toFixed(2)} ${(y0 + radius).toFixed(2)} Q ${x0.toFixed(2)} ${y0.toFixed(2)} ${(x0 + radius).toFixed(2)} ${y0.toFixed(2)} Z`;
       } else if (rot === 90) {
-        const xm = x + s - inset;
-        const ym = y + s + inset;
-        path = `M ${(x0 + radius).toFixed(2)} ${y0.toFixed(2)} L ${(x2 - radius).toFixed(2)} ${y0.toFixed(2)} Q ${x2.toFixed(2)} ${y0.toFixed(2)} ${x2.toFixed(2)} ${(y0 + radius).toFixed(2)} L ${x2.toFixed(2)} ${(y2 - radius).toFixed(2)} Q ${x2.toFixed(2)} ${y2.toFixed(2)} ${(x2 - radius).toFixed(2)} ${y2.toFixed(2)} L ${(xm + radius).toFixed(2)} ${y2.toFixed(2)} Q ${xm.toFixed(2)} ${y2.toFixed(2)} ${xm.toFixed(2)} ${(y2 - radius).toFixed(2)} L ${xm.toFixed(2)} ${(ym + radius).toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${(xm - radius).toFixed(2)} ${ym.toFixed(2)} L ${(x0 + radius).toFixed(2)} ${ym.toFixed(2)} Q ${x0.toFixed(2)} ${ym.toFixed(2)} ${x0.toFixed(2)} ${(ym - radius).toFixed(2)} L ${x0.toFixed(2)} ${(y0 + radius).toFixed(2)} Q ${x0.toFixed(2)} ${y0.toFixed(2)} ${(x0 + radius).toFixed(2)} ${y0.toFixed(2)} Z`;
-      } else if (rot === 180) {
-        const xm = x + s - inset;
-        const ym = y + s - inset;
-        path = `M ${(xm + radius).toFixed(2)} ${y0.toFixed(2)} L ${(x2 - radius).toFixed(2)} ${y0.toFixed(2)} Q ${x2.toFixed(2)} ${y0.toFixed(2)} ${x2.toFixed(2)} ${(y0 + radius).toFixed(2)} L ${x2.toFixed(2)} ${(y2 - radius).toFixed(2)} Q ${x2.toFixed(2)} ${y2.toFixed(2)} ${(x2 - radius).toFixed(2)} ${y2.toFixed(2)} L ${(x0 + radius).toFixed(2)} ${y2.toFixed(2)} Q ${x0.toFixed(2)} ${y2.toFixed(2)} ${x0.toFixed(2)} ${(y2 - radius).toFixed(2)} L ${x0.toFixed(2)} ${(ym + radius).toFixed(2)} Q ${x0.toFixed(2)} ${ym.toFixed(2)} ${(x0 + radius).toFixed(2)} ${ym.toFixed(2)} L ${(xm - radius).toFixed(2)} ${ym.toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${xm.toFixed(2)} ${(ym - radius).toFixed(2)} L ${xm.toFixed(2)} ${(y0 + radius).toFixed(2)} Q ${xm.toFixed(2)} ${y0.toFixed(2)} ${(xm + radius).toFixed(2)} ${y0.toFixed(2)} Z`;
-      } else {
         const xm = x + s + inset;
         const ym = y + s - inset;
+        path = `M ${(x0 + radius).toFixed(2)} ${y0.toFixed(2)} L ${(x2 - radius).toFixed(2)} ${y0.toFixed(2)} Q ${x2.toFixed(2)} ${y0.toFixed(2)} ${x2.toFixed(2)} ${(y0 + radius).toFixed(2)} L ${x2.toFixed(2)} ${(y2 - radius).toFixed(2)} Q ${x2.toFixed(2)} ${y2.toFixed(2)} ${(x2 - radius).toFixed(2)} ${y2.toFixed(2)} L ${(xm + radius).toFixed(2)} ${y2.toFixed(2)} Q ${xm.toFixed(2)} ${y2.toFixed(2)} ${xm.toFixed(2)} ${(y2 - radius).toFixed(2)} L ${xm.toFixed(2)} ${(ym + radius).toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${(xm - radius).toFixed(2)} ${ym.toFixed(2)} L ${(x0 + radius).toFixed(2)} ${ym.toFixed(2)} Q ${x0.toFixed(2)} ${ym.toFixed(2)} ${x0.toFixed(2)} ${(ym - radius).toFixed(2)} L ${x0.toFixed(2)} ${(y0 + radius).toFixed(2)} Q ${x0.toFixed(2)} ${y0.toFixed(2)} ${(x0 + radius).toFixed(2)} ${y0.toFixed(2)} Z`;
+      } else if (rot === 180) {
+        const xm = x + s + inset;
+        const ym = y + s + inset;
+        path = `M ${(xm + radius).toFixed(2)} ${y0.toFixed(2)} L ${(x2 - radius).toFixed(2)} ${y0.toFixed(2)} Q ${x2.toFixed(2)} ${y0.toFixed(2)} ${x2.toFixed(2)} ${(y0 + radius).toFixed(2)} L ${x2.toFixed(2)} ${(y2 - radius).toFixed(2)} Q ${x2.toFixed(2)} ${y2.toFixed(2)} ${(x2 - radius).toFixed(2)} ${y2.toFixed(2)} L ${(x0 + radius).toFixed(2)} ${y2.toFixed(2)} Q ${x0.toFixed(2)} ${y2.toFixed(2)} ${x0.toFixed(2)} ${(y2 - radius).toFixed(2)} L ${x0.toFixed(2)} ${(ym + radius).toFixed(2)} Q ${x0.toFixed(2)} ${ym.toFixed(2)} ${(x0 + radius).toFixed(2)} ${ym.toFixed(2)} L ${(xm - radius).toFixed(2)} ${ym.toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${xm.toFixed(2)} ${(ym - radius).toFixed(2)} L ${xm.toFixed(2)} ${(y0 + radius).toFixed(2)} Q ${xm.toFixed(2)} ${y0.toFixed(2)} ${(xm + radius).toFixed(2)} ${y0.toFixed(2)} Z`;
+      } else {
+        const xm = x + s - inset;
+        const ym = y + s + inset;
         path = `M ${(x0 + radius).toFixed(2)} ${y0.toFixed(2)} L ${(xm - radius).toFixed(2)} ${y0.toFixed(2)} Q ${xm.toFixed(2)} ${y0.toFixed(2)} ${xm.toFixed(2)} ${(y0 + radius).toFixed(2)} L ${xm.toFixed(2)} ${(ym - radius).toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${(xm + radius).toFixed(2)} ${ym.toFixed(2)} L ${(x2 - radius).toFixed(2)} ${ym.toFixed(2)} Q ${x2.toFixed(2)} ${ym.toFixed(2)} ${x2.toFixed(2)} ${(ym + radius).toFixed(2)} L ${x2.toFixed(2)} ${(y2 - radius).toFixed(2)} Q ${x2.toFixed(2)} ${y2.toFixed(2)} ${(x2 - radius).toFixed(2)} ${y2.toFixed(2)} L ${(x0 + radius).toFixed(2)} ${y2.toFixed(2)} Q ${x0.toFixed(2)} ${y2.toFixed(2)} ${x0.toFixed(2)} ${(y2 - radius).toFixed(2)} L ${x0.toFixed(2)} ${(y0 + radius).toFixed(2)} Q ${x0.toFixed(2)} ${y0.toFixed(2)} ${(x0 + radius).toFixed(2)} ${y0.toFixed(2)} Z`;
       }
       shapesSvg += `  <path d="${path}" fill="${fill}" stroke="none"/>\n`;

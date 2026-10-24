@@ -204,73 +204,155 @@ export const LEGO_TILES: TileType[] = [
         const left = x + inset;
         const right = x + 2 * s - inset;
         const bottom = y + s - inset;
-        const arcR = s - inset;
-        path = `M ${left + r} ${bottom} L ${right - r} ${bottom} Q ${right} ${bottom} ${right} ${bottom - r} A ${arcR} ${arcR} 0 0 0 ${left} ${bottom - r} Q ${left} ${bottom} ${left + r} ${bottom} Z`;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        path = `M ${left + r} ${bottom} L ${right - r} ${bottom} Q ${right} ${bottom} ${right} ${bottom - r} A ${rx} ${ry} 0 0 0 ${left} ${bottom - r} Q ${left} ${bottom} ${left + r} ${bottom} Z`;
       } else if (rot === 90) {
         // Flat base on left (height 2s), arched rightwards
         const left = x + inset;
         const top = y + inset;
         const bottom = y + 2 * s - inset;
-        const arcR = s - inset;
-        path = `M ${left} ${top + r} L ${left} ${bottom - r} Q ${left} ${bottom} ${left + r} ${bottom} A ${arcR} ${arcR} 0 0 0 ${left + r} ${top} Q ${left} ${top} ${left} ${top + r} Z`;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        path = `M ${left} ${top + r} L ${left} ${bottom - r} Q ${left} ${bottom} ${left + r} ${bottom} A ${rx} ${ry} 0 0 0 ${left + r} ${top} Q ${left} ${top} ${left} ${top + r} Z`;
       } else if (rot === 180) {
         // Flat base on top (length 2s), arched downwards
         const left = x + inset;
         const right = x + 2 * s - inset;
         const top = y + inset;
-        const arcR = s - inset;
-        path = `M ${right - r} ${top} L ${left + r} ${top} Q ${left} ${top} ${left} ${top + r} A ${arcR} ${arcR} 0 0 0 ${right} ${top + r} Q ${right} ${top} ${right - r} ${top} Z`;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        path = `M ${right - r} ${top} L ${left + r} ${top} Q ${left} ${top} ${left} ${top + r} A ${rx} ${ry} 0 0 0 ${right} ${top + r} Q ${right} ${top} ${right - r} ${top} Z`;
       } else {
         // Flat base on right (height 2s), arched leftwards
         const right = x + s - inset;
         const top = y + inset;
         const bottom = y + 2 * s - inset;
-        const arcR = s - inset;
-        path = `M ${right} ${bottom - r} L ${right} ${top + r} Q ${right} ${top} ${right - r} ${top} A ${arcR} ${arcR} 0 0 0 ${right - r} ${bottom} Q ${right} ${bottom} ${right} ${bottom - r} Z`;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        path = `M ${right} ${bottom - r} L ${right} ${top + r} Q ${right} ${top} ${right - r} ${top} A ${rx} ${ry} 0 0 0 ${right - r} ${bottom} Q ${right} ${bottom} ${right} ${bottom - r} Z`;
       }
 
       return <path key={id} d={path} fill={fill} stroke="none" />;
     },
-    drawCanvas: (ctx, x, y, s, rot, fill) => {
-      const { inset } = getTileGeometryParams(s);
-      ctx.fillStyle = fill;
-      ctx.beginPath();
-      const arcR = s - inset;
+    renderSvgXml: (x, y, s, rot, fill) => {
+      const { inset, radius: r } = getTileGeometryParams(s);
+      let path = '';
 
       if (rot === 0) {
-        ctx.arc(x + s, y + s - inset, arcR, Math.PI, 0, false);
-        ctx.lineTo(x + 2 * s - inset, y + s - inset);
-        ctx.lineTo(x + inset, y + s - inset);
+        const left = x + inset;
+        const right = x + 2 * s - inset;
+        const bottom = y + s - inset;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        path = `M ${(left + r).toFixed(2)} ${bottom.toFixed(2)} L ${(right - r).toFixed(2)} ${bottom.toFixed(2)} Q ${right.toFixed(2)} ${bottom.toFixed(2)} ${right.toFixed(2)} ${(bottom - r).toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${left.toFixed(2)} ${(bottom - r).toFixed(2)} Q ${left.toFixed(2)} ${bottom.toFixed(2)} ${(left + r).toFixed(2)} ${bottom.toFixed(2)} Z`;
       } else if (rot === 90) {
-        ctx.arc(x + inset, y + s, arcR, -Math.PI / 2, Math.PI / 2, false);
-        ctx.lineTo(x + inset, y + 2 * s - inset);
-        ctx.lineTo(x + inset, y + inset);
+        const left = x + inset;
+        const top = y + inset;
+        const bottom = y + 2 * s - inset;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        path = `M ${left.toFixed(2)} ${(top + r).toFixed(2)} L ${left.toFixed(2)} ${(bottom - r).toFixed(2)} Q ${left.toFixed(2)} ${bottom.toFixed(2)} ${(left + r).toFixed(2)} ${bottom.toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${(left + r).toFixed(2)} ${top.toFixed(2)} Q ${left.toFixed(2)} ${top.toFixed(2)} ${left.toFixed(2)} ${(top + r).toFixed(2)} Z`;
       } else if (rot === 180) {
-        ctx.arc(x + s, y + inset, arcR, 0, Math.PI, false);
-        ctx.lineTo(x + inset, y + inset);
-        ctx.lineTo(x + 2 * s - inset, y + inset);
+        const left = x + inset;
+        const right = x + 2 * s - inset;
+        const top = y + inset;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        path = `M ${(right - r).toFixed(2)} ${top.toFixed(2)} L ${(left + r).toFixed(2)} ${top.toFixed(2)} Q ${left.toFixed(2)} ${top.toFixed(2)} ${left.toFixed(2)} ${(top + r).toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${right.toFixed(2)} ${(top + r).toFixed(2)} Q ${right.toFixed(2)} ${top.toFixed(2)} ${(right - r).toFixed(2)} ${top.toFixed(2)} Z`;
       } else {
-        ctx.arc(x + s - inset, y + s, arcR, Math.PI / 2, (3 * Math.PI) / 2, false);
-        ctx.lineTo(x + s - inset, y + inset);
-        ctx.lineTo(x + s - inset, y + 2 * s - inset);
+        const right = x + s - inset;
+        const top = y + inset;
+        const bottom = y + 2 * s - inset;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        path = `M ${right.toFixed(2)} ${(bottom - r).toFixed(2)} L ${right.toFixed(2)} ${(top + r).toFixed(2)} Q ${right.toFixed(2)} ${top.toFixed(2)} ${(right - r).toFixed(2)} ${top.toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${(right - r).toFixed(2)} ${bottom.toFixed(2)} Q ${right.toFixed(2)} ${bottom.toFixed(2)} ${right.toFixed(2)} ${(bottom - r).toFixed(2)} Z`;
+      }
+
+      return `<path d="${path}" fill="${fill}" stroke="none"/>`;
+    },
+    drawCanvas: (ctx, x, y, s, rot, fill) => {
+      const { inset, radius: r } = getTileGeometryParams(s);
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+
+      if (rot === 0) {
+        const left = x + inset;
+        const right = x + 2 * s - inset;
+        const bottom = y + s - inset;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        ctx.moveTo(left + r, bottom);
+        ctx.lineTo(right - r, bottom);
+        ctx.quadraticCurveTo(right, bottom, right, bottom - r);
+        ctx.ellipse(x + s, bottom, rx, ry, 0, 0, Math.PI, true);
+        ctx.quadraticCurveTo(left, bottom, left + r, bottom);
+      } else if (rot === 90) {
+        const left = x + inset;
+        const top = y + inset;
+        const bottom = y + 2 * s - inset;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        ctx.moveTo(left, top + r);
+        ctx.lineTo(left, bottom - r);
+        ctx.quadraticCurveTo(left, bottom, left + r, bottom);
+        ctx.ellipse(left, y + s, rx, ry, 0, Math.PI / 2, -Math.PI / 2, true);
+        ctx.quadraticCurveTo(left, top, left, top + r);
+      } else if (rot === 180) {
+        const left = x + inset;
+        const right = x + 2 * s - inset;
+        const top = y + inset;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        ctx.moveTo(right - r, top);
+        ctx.lineTo(left + r, top);
+        ctx.quadraticCurveTo(left, top, left, top + r);
+        ctx.ellipse(x + s, top, rx, ry, 0, Math.PI, 0, true);
+        ctx.quadraticCurveTo(right, top, right - r, top);
+      } else {
+        const right = x + s - inset;
+        const top = y + inset;
+        const bottom = y + 2 * s - inset;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        ctx.moveTo(right, bottom - r);
+        ctx.lineTo(right, top + r);
+        ctx.quadraticCurveTo(right, top, right - r, top);
+        ctx.ellipse(right, y + s, rx, ry, 0, -Math.PI / 2, Math.PI / 2, true);
+        ctx.quadraticCurveTo(right, bottom, right, bottom - r);
       }
       ctx.closePath();
       ctx.fill();
     },
     getEpsPostScript: (x, y, s, rot, r, g, b) => {
       const { inset } = getTileGeometryParams(s);
-      const arcR = s - inset;
       let cmd = '';
       if (rot === 0) {
-        cmd = `${(x + s).toFixed(2)} ${(y + s - inset).toFixed(2)} ${arcR.toFixed(2)} 180 360 arc closepath`;
+        const cx = x + s;
+        const cy = y + s - inset;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        cmd = `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rx.toFixed(2)} ${ry.toFixed(2)} scale\n0 0 1 180 360 arc\nclosepath fill\ngrestore\n`;
       } else if (rot === 90) {
-        cmd = `${(x + inset).toFixed(2)} ${(y + s).toFixed(2)} ${arcR.toFixed(2)} 270 90 arc closepath`;
+        const cx = x + inset;
+        const cy = y + s;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        cmd = `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rx.toFixed(2)} ${ry.toFixed(2)} scale\n0 0 1 270 90 arc\nclosepath fill\ngrestore\n`;
       } else if (rot === 180) {
-        cmd = `${(x + s).toFixed(2)} ${(y + inset).toFixed(2)} ${arcR.toFixed(2)} 0 180 arc closepath`;
+        const cx = x + s;
+        const cy = y + inset;
+        const rx = s - inset;
+        const ry = s - 2 * inset;
+        cmd = `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rx.toFixed(2)} ${ry.toFixed(2)} scale\n0 0 1 0 180 arc\nclosepath fill\ngrestore\n`;
       } else {
-        cmd = `${(x + s - inset).toFixed(2)} ${(y + s).toFixed(2)} ${arcR.toFixed(2)} 90 270 arc closepath`;
+        const cx = x + s - inset;
+        const cy = y + s;
+        const rx = s - 2 * inset;
+        const ry = s - inset;
+        cmd = `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rx.toFixed(2)} ${ry.toFixed(2)} scale\n0 0 1 90 270 arc\nclosepath fill\ngrestore\n`;
       }
-      return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor newpath ${cmd} fill\n`;
+      return cmd;
     },
   },
 
@@ -534,89 +616,129 @@ export const LEGO_TILES: TileType[] = [
     },
     renderSvg: (x, y, s, rot, fill, id) => {
       const { inset, radius: r } = getTileGeometryParams(s);
+      const x0 = x + inset;
+      const y0 = y + inset;
+      const x2 = x + 2 * s - inset;
+      const y2 = y + 2 * s - inset;
       let path = '';
+
       if (rot === 0) {
-        const x0 = x + inset;
-        const y0 = y + inset;
-        const x2 = x + 2 * s - inset;
-        const y2 = y + 2 * s - inset;
-        const xm = x + s + inset;
-        const ym = y + s + inset;
+        const xm = x + s - inset;
+        const ym = y + s - inset;
         path = `M ${x0 + r} ${y0} L ${x2 - r} ${y0} Q ${x2} ${y0} ${x2} ${y0 + r} L ${x2} ${ym - r} Q ${x2} ${ym} ${x2 - r} ${ym} L ${xm + r} ${ym} Q ${xm} ${ym} ${xm} ${ym + r} L ${xm} ${y2 - r} Q ${xm} ${y2} ${xm - r} ${y2} L ${x0 + r} ${y2} Q ${x0} ${y2} ${x0} ${y2 - r} L ${x0} ${y0 + r} Q ${x0} ${y0} ${x0 + r} ${y0} Z`;
       } else if (rot === 90) {
-        const x0 = x + inset;
-        const y0 = y + inset;
-        const x2 = x + 2 * s - inset;
-        const y2 = y + 2 * s - inset;
-        const xm = x + s - inset;
-        const ym = y + s + inset;
-        path = `M ${x0 + r} ${y0} L ${x2 - r} ${y0} Q ${x2} ${y0} ${x2} ${y0 + r} L ${x2} ${y2 - r} Q ${x2} ${y2} ${x2 - r} ${y2} L ${xm + r} ${y2} Q ${xm} ${y2} ${xm} ${y2 - r} L ${xm} ${ym + r} Q ${xm} ${ym} ${xm - r} ${ym} L ${x0 + r} ${ym} Q ${x0} ${ym} ${x0} ${ym - r} L ${x0} ${y0 + r} Q ${x0} ${y0} ${x0 + r} ${y0} Z`;
-      } else if (rot === 180) {
-        const x0 = x + inset;
-        const y0 = y + inset;
-        const x2 = x + 2 * s - inset;
-        const y2 = y + 2 * s - inset;
-        const xm = x + s - inset;
-        const ym = y + s - inset;
-        path = `M ${xm + r} ${y0} L ${x2 - r} ${y0} Q ${x2} ${y0} ${x2} ${y0 + r} L ${x2} ${y2 - r} Q ${x2} ${y2} ${x2 - r} ${y2} L ${x0 + r} ${y2} Q ${x0} ${y2} ${x0} ${y2 - r} L ${x0} ${ym + r} Q ${x0} ${ym} ${x0 + r} ${ym} L ${xm - r} ${ym} Q ${xm} ${ym} ${xm} ${ym - r} L ${xm} ${y0 + r} Q ${xm} ${y0} ${xm + r} ${y0} Z`;
-      } else {
-        const x0 = x + inset;
-        const y0 = y + inset;
-        const x2 = x + 2 * s - inset;
-        const y2 = y + 2 * s - inset;
         const xm = x + s + inset;
         const ym = y + s - inset;
+        path = `M ${x0 + r} ${y0} L ${x2 - r} ${y0} Q ${x2} ${y0} ${x2} ${y0 + r} L ${x2} ${y2 - r} Q ${x2} ${y2} ${x2 - r} ${y2} L ${xm + r} ${y2} Q ${xm} ${y2} ${xm} ${y2 - r} L ${xm} ${ym + r} Q ${xm} ${ym} ${xm - r} ${ym} L ${x0 + r} ${ym} Q ${x0} ${ym} ${x0} ${ym - r} L ${x0} ${y0 + r} Q ${x0} ${y0} ${x0 + r} ${y0} Z`;
+      } else if (rot === 180) {
+        const xm = x + s + inset;
+        const ym = y + s + inset;
+        path = `M ${xm + r} ${y0} L ${x2 - r} ${y0} Q ${x2} ${y0} ${x2} ${y0 + r} L ${x2} ${y2 - r} Q ${x2} ${y2} ${x2 - r} ${y2} L ${x0 + r} ${y2} Q ${x0} ${y2} ${x0} ${y2 - r} L ${x0} ${ym + r} Q ${x0} ${ym} ${x0 + r} ${ym} L ${xm - r} ${ym} Q ${xm} ${ym} ${xm} ${ym - r} L ${xm} ${y0 + r} Q ${xm} ${y0} ${xm + r} ${y0} Z`;
+      } else {
+        const xm = x + s - inset;
+        const ym = y + s + inset;
         path = `M ${x0 + r} ${y0} L ${xm - r} ${y0} Q ${xm} ${y0} ${xm} ${y0 + r} L ${xm} ${ym - r} Q ${xm} ${ym} ${xm + r} ${ym} L ${x2 - r} ${ym} Q ${x2} ${ym} ${x2} ${ym + r} L ${x2} ${y2 - r} Q ${x2} ${y2} ${x2 - r} ${y2} L ${x0 + r} ${y2} Q ${x0} ${y2} ${x0} ${y2 - r} L ${x0} ${y0 + r} Q ${x0} ${y0} ${x0 + r} ${y0} Z`;
       }
       return <path key={id} d={path} fill={fill} stroke="none" />;
     },
+    renderSvgXml: (x, y, s, rot, fill) => {
+      const { inset, radius: r } = getTileGeometryParams(s);
+      const x0 = x + inset;
+      const y0 = y + inset;
+      const x2 = x + 2 * s - inset;
+      const y2 = y + 2 * s - inset;
+      let path = '';
+
+      if (rot === 0) {
+        const xm = x + s - inset;
+        const ym = y + s - inset;
+        path = `M ${(x0 + r).toFixed(2)} ${y0.toFixed(2)} L ${(x2 - r).toFixed(2)} ${y0.toFixed(2)} Q ${x2.toFixed(2)} ${y0.toFixed(2)} ${x2.toFixed(2)} ${(y0 + r).toFixed(2)} L ${x2.toFixed(2)} ${(ym - r).toFixed(2)} Q ${x2.toFixed(2)} ${ym.toFixed(2)} ${(x2 - r).toFixed(2)} ${ym.toFixed(2)} L ${(xm + r).toFixed(2)} ${ym.toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${xm.toFixed(2)} ${(ym + r).toFixed(2)} L ${xm.toFixed(2)} ${(y2 - r).toFixed(2)} Q ${xm.toFixed(2)} ${y2.toFixed(2)} ${(xm - r).toFixed(2)} ${y2.toFixed(2)} L ${(x0 + r).toFixed(2)} ${y2.toFixed(2)} Q ${x0.toFixed(2)} ${y2.toFixed(2)} ${x0.toFixed(2)} ${(y2 - r).toFixed(2)} L ${x0.toFixed(2)} ${(y0 + r).toFixed(2)} Q ${x0.toFixed(2)} ${y0.toFixed(2)} ${(x0 + r).toFixed(2)} ${y0.toFixed(2)} Z`;
+      } else if (rot === 90) {
+        const xm = x + s + inset;
+        const ym = y + s - inset;
+        path = `M ${(x0 + r).toFixed(2)} ${y0.toFixed(2)} L ${(x2 - r).toFixed(2)} ${y0.toFixed(2)} Q ${x2.toFixed(2)} ${y0.toFixed(2)} ${x2.toFixed(2)} ${(y0 + r).toFixed(2)} L ${x2.toFixed(2)} ${(y2 - r).toFixed(2)} Q ${x2.toFixed(2)} ${y2.toFixed(2)} ${(x2 - r).toFixed(2)} ${y2.toFixed(2)} L ${(xm + r).toFixed(2)} ${y2.toFixed(2)} Q ${xm.toFixed(2)} ${y2.toFixed(2)} ${xm.toFixed(2)} ${(y2 - r).toFixed(2)} L ${xm.toFixed(2)} ${(ym + r).toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${(xm - r).toFixed(2)} ${ym.toFixed(2)} L ${(x0 + r).toFixed(2)} ${ym.toFixed(2)} Q ${x0.toFixed(2)} ${ym.toFixed(2)} ${x0.toFixed(2)} ${(ym - r).toFixed(2)} L ${x0.toFixed(2)} ${(y0 + r).toFixed(2)} Q ${x0.toFixed(2)} ${y0.toFixed(2)} ${(x0 + r).toFixed(2)} ${y0.toFixed(2)} Z`;
+      } else if (rot === 180) {
+        const xm = x + s + inset;
+        const ym = y + s + inset;
+        path = `M ${(xm + r).toFixed(2)} ${y0.toFixed(2)} L ${(x2 - r).toFixed(2)} ${y0.toFixed(2)} Q ${x2.toFixed(2)} ${y0.toFixed(2)} ${x2.toFixed(2)} ${(y0 + r).toFixed(2)} L ${x2.toFixed(2)} ${(y2 - r).toFixed(2)} Q ${x2.toFixed(2)} ${y2.toFixed(2)} ${(x2 - r).toFixed(2)} ${y2.toFixed(2)} L ${(x0 + r).toFixed(2)} ${y2.toFixed(2)} Q ${x0.toFixed(2)} ${y2.toFixed(2)} ${x0.toFixed(2)} ${(y2 - r).toFixed(2)} L ${x0.toFixed(2)} ${(ym + r).toFixed(2)} Q ${x0.toFixed(2)} ${ym.toFixed(2)} ${(x0 + r).toFixed(2)} ${ym.toFixed(2)} L ${(xm - r).toFixed(2)} ${ym.toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${xm.toFixed(2)} ${(ym - r).toFixed(2)} L ${xm.toFixed(2)} ${(y0 + r).toFixed(2)} Q ${xm.toFixed(2)} ${y0.toFixed(2)} ${(xm + r).toFixed(2)} ${y0.toFixed(2)} Z`;
+      } else {
+        const xm = x + s - inset;
+        const ym = y + s + inset;
+        path = `M ${(x0 + r).toFixed(2)} ${y0.toFixed(2)} L ${(xm - r).toFixed(2)} ${y0.toFixed(2)} Q ${xm.toFixed(2)} ${y0.toFixed(2)} ${xm.toFixed(2)} ${(y0 + r).toFixed(2)} L ${xm.toFixed(2)} ${(ym - r).toFixed(2)} Q ${xm.toFixed(2)} ${ym.toFixed(2)} ${(xm + r).toFixed(2)} ${ym.toFixed(2)} L ${(x2 - r).toFixed(2)} ${ym.toFixed(2)} Q ${x2.toFixed(2)} ${ym.toFixed(2)} ${x2.toFixed(2)} ${(ym + r).toFixed(2)} L ${x2.toFixed(2)} ${(y2 - r).toFixed(2)} Q ${x2.toFixed(2)} ${y2.toFixed(2)} ${(x2 - r).toFixed(2)} ${y2.toFixed(2)} L ${(x0 + r).toFixed(2)} ${y2.toFixed(2)} Q ${x0.toFixed(2)} ${y2.toFixed(2)} ${x0.toFixed(2)} ${(y2 - r).toFixed(2)} L ${x0.toFixed(2)} ${(y0 + r).toFixed(2)} Q ${x0.toFixed(2)} ${y0.toFixed(2)} ${(x0 + r).toFixed(2)} ${y0.toFixed(2)} Z`;
+      }
+      return `<path d="${path}" fill="${fill}" stroke="none"/>`;
+    },
     drawCanvas: (ctx, x, y, s, rot, fill) => {
       const { inset } = getTileGeometryParams(s);
+      const x0 = x + inset;
+      const y0 = y + inset;
+      const x2 = x + 2 * s - inset;
+      const y2 = y + 2 * s - inset;
       ctx.fillStyle = fill;
       ctx.beginPath();
       if (rot === 0) {
-        ctx.moveTo(x + inset, y + inset);
-        ctx.lineTo(x + 2 * s - inset, y + inset);
-        ctx.lineTo(x + 2 * s - inset, y + s + inset);
-        ctx.lineTo(x + s + inset, y + s + inset);
-        ctx.lineTo(x + s + inset, y + 2 * s - inset);
-        ctx.lineTo(x + inset, y + 2 * s - inset);
+        const xm = x + s - inset;
+        const ym = y + s - inset;
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x2, y0);
+        ctx.lineTo(x2, ym);
+        ctx.lineTo(xm, ym);
+        ctx.lineTo(xm, y2);
+        ctx.lineTo(x0, y2);
       } else if (rot === 90) {
-        ctx.moveTo(x + inset, y + inset);
-        ctx.lineTo(x + 2 * s - inset, y + inset);
-        ctx.lineTo(x + 2 * s - inset, y + 2 * s - inset);
-        ctx.lineTo(x + s - inset, y + 2 * s - inset);
-        ctx.lineTo(x + s - inset, y + s + inset);
-        ctx.lineTo(x + inset, y + s + inset);
+        const xm = x + s + inset;
+        const ym = y + s - inset;
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x2, y0);
+        ctx.lineTo(x2, y2);
+        ctx.lineTo(xm, y2);
+        ctx.lineTo(xm, ym);
+        ctx.lineTo(x0, ym);
       } else if (rot === 180) {
-        ctx.moveTo(x + s - inset, y + inset);
-        ctx.lineTo(x + 2 * s - inset, y + inset);
-        ctx.lineTo(x + 2 * s - inset, y + 2 * s - inset);
-        ctx.lineTo(x + inset, y + 2 * s - inset);
-        ctx.lineTo(x + inset, y + s - inset);
-        ctx.lineTo(x + s - inset, y + s - inset);
+        const xm = x + s + inset;
+        const ym = y + s + inset;
+        ctx.moveTo(xm, y0);
+        ctx.lineTo(x2, y0);
+        ctx.lineTo(x2, y2);
+        ctx.lineTo(x0, y2);
+        ctx.lineTo(x0, ym);
+        ctx.lineTo(xm, ym);
       } else {
-        ctx.moveTo(x + inset, y + inset);
-        ctx.lineTo(x + s + inset, y + inset);
-        ctx.lineTo(x + s + inset, y + s - inset);
-        ctx.lineTo(x + 2 * s - inset, y + s - inset);
-        ctx.lineTo(x + 2 * s - inset, y + 2 * s - inset);
-        ctx.lineTo(x + inset, y + 2 * s - inset);
+        const xm = x + s - inset;
+        const ym = y + s + inset;
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(xm, y0);
+        ctx.lineTo(xm, ym);
+        ctx.lineTo(x2, ym);
+        ctx.lineTo(x2, y2);
+        ctx.lineTo(x0, y2);
       }
       ctx.closePath();
       ctx.fill();
     },
     getEpsPostScript: (x, y, s, rot, r, g, b) => {
       const { inset } = getTileGeometryParams(s);
+      const x0 = x + inset;
+      const y0 = y + inset;
+      const x2 = x + 2 * s - inset;
+      const y2 = y + 2 * s - inset;
       let p = '';
       if (rot === 0) {
-        p = `${(x + inset).toFixed(2)} ${(y + inset).toFixed(2)} moveto ${(x + 2 * s - inset).toFixed(2)} ${(y + inset).toFixed(2)} lineto ${(x + 2 * s - inset).toFixed(2)} ${(y + s + inset).toFixed(2)} lineto ${(x + s + inset).toFixed(2)} ${(y + s + inset).toFixed(2)} lineto ${(x + s + inset).toFixed(2)} ${(y + 2 * s - inset).toFixed(2)} lineto ${(x + inset).toFixed(2)} ${(y + 2 * s - inset).toFixed(2)} lineto closepath`;
+        const xm = x + s - inset;
+        const ym = y + s - inset;
+        p = `${x0.toFixed(2)} ${y0.toFixed(2)} moveto ${x2.toFixed(2)} ${y0.toFixed(2)} lineto ${x2.toFixed(2)} ${ym.toFixed(2)} lineto ${xm.toFixed(2)} ${ym.toFixed(2)} lineto ${xm.toFixed(2)} ${y2.toFixed(2)} lineto ${x0.toFixed(2)} ${y2.toFixed(2)} lineto closepath`;
       } else if (rot === 90) {
-        p = `${(x + inset).toFixed(2)} ${(y + inset).toFixed(2)} moveto ${(x + 2 * s - inset).toFixed(2)} ${(y + inset).toFixed(2)} lineto ${(x + 2 * s - inset).toFixed(2)} ${(y + 2 * s - inset).toFixed(2)} lineto ${(x + s - inset).toFixed(2)} ${(y + 2 * s - inset).toFixed(2)} lineto ${(x + s - inset).toFixed(2)} ${(y + s + inset).toFixed(2)} lineto ${(x + inset).toFixed(2)} ${(y + s + inset).toFixed(2)} lineto closepath`;
+        const xm = x + s + inset;
+        const ym = y + s - inset;
+        p = `${x0.toFixed(2)} ${y0.toFixed(2)} moveto ${x2.toFixed(2)} ${y0.toFixed(2)} lineto ${x2.toFixed(2)} ${y2.toFixed(2)} lineto ${xm.toFixed(2)} ${y2.toFixed(2)} lineto ${xm.toFixed(2)} ${ym.toFixed(2)} lineto ${x0.toFixed(2)} ${ym.toFixed(2)} lineto closepath`;
       } else if (rot === 180) {
-        p = `${(x + s - inset).toFixed(2)} ${(y + inset).toFixed(2)} moveto ${(x + 2 * s - inset).toFixed(2)} ${(y + inset).toFixed(2)} lineto ${(x + 2 * s - inset).toFixed(2)} ${(y + 2 * s - inset).toFixed(2)} lineto ${(x + inset).toFixed(2)} ${(y + 2 * s - inset).toFixed(2)} lineto ${(x + inset).toFixed(2)} ${(y + s - inset).toFixed(2)} lineto ${(x + s - inset).toFixed(2)} ${(y + s - inset).toFixed(2)} lineto closepath`;
+        const xm = x + s + inset;
+        const ym = y + s + inset;
+        p = `${xm.toFixed(2)} ${y0.toFixed(2)} moveto ${x2.toFixed(2)} ${y0.toFixed(2)} lineto ${x2.toFixed(2)} ${y2.toFixed(2)} lineto ${x0.toFixed(2)} ${y2.toFixed(2)} lineto ${x0.toFixed(2)} ${ym.toFixed(2)} lineto ${xm.toFixed(2)} ${ym.toFixed(2)} lineto closepath`;
       } else {
-        p = `${(x + inset).toFixed(2)} ${(y + inset).toFixed(2)} moveto ${(x + s + inset).toFixed(2)} ${(y + inset).toFixed(2)} lineto ${(x + s + inset).toFixed(2)} ${(y + s - inset).toFixed(2)} lineto ${(x + 2 * s - inset).toFixed(2)} ${(y + s - inset).toFixed(2)} lineto ${(x + 2 * s - inset).toFixed(2)} ${(y + 2 * s - inset).toFixed(2)} lineto ${(x + inset).toFixed(2)} ${(y + 2 * s - inset).toFixed(2)} lineto closepath`;
+        const xm = x + s - inset;
+        const ym = y + s + inset;
+        p = `${x0.toFixed(2)} ${y0.toFixed(2)} moveto ${xm.toFixed(2)} ${y0.toFixed(2)} lineto ${xm.toFixed(2)} ${ym.toFixed(2)} lineto ${x2.toFixed(2)} ${ym.toFixed(2)} lineto ${x2.toFixed(2)} ${y2.toFixed(2)} lineto ${x0.toFixed(2)} ${y2.toFixed(2)} lineto closepath`;
       }
       return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor newpath ${p} fill\n`;
     },
