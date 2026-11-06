@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1917" />
+      <stop offset="100%" stop-color="#0c0a09" />
+    </linearGradient>
+    <linearGradient id="stud" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <!-- App Icon Base Squircle -->
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="url(#bg)" stroke="#292524" stroke-width="2" filter="url(#shadow)"/>
+  
+  <!-- 2x2 Colorful Mosaic Tiles -->
+  <!-- Top Left: Amber Tile -->
+  <rect x="22" y="22" width="38" height="38" rx="7" fill="#f59e0b" />
+  <circle cx="41" cy="41" r="10" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" />
+  
+  <!-- Top Right: Red Tile -->
+  <rect x="68" y="22" width="38" height="38" rx="7" fill="#ef4444" />
+  <circle cx="87" cy="41" r="10" fill="#f87171" stroke="#dc2626" stroke-width="1.5" />
+  
+  <!-- Bottom Left: Blue Tile -->
+  <rect x="22" y="68" width="38" height="38" rx="7" fill="#3b82f6" />
+  <circle cx="41" cy="87" r="10" fill="#60a5fa" stroke="#2563eb" stroke-width="1.5" />
+  
+  <!-- Bottom Right: Emerald Green Tile -->
+  <rect x="68" y="68" width="38" height="38" rx="7" fill="#10b981" />
+  <circle cx="87" cy="87" r="10" fill="#34d399" stroke="#059669" stroke-width="1.5" />
+</svg>
