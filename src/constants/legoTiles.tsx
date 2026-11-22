@@ -200,7 +200,6 @@ export const LEGO_TILES: TileType[] = [
       let path = '';
 
       if (rot === 0) {
-        // Flat base on bottom (length 2s), arched upwards to center top
         const left = x + inset;
         const right = x + 2 * s - inset;
         const bottom = y + s - inset;
@@ -208,7 +207,6 @@ export const LEGO_TILES: TileType[] = [
         const ry = s - 2 * inset;
         path = `M ${left + r} ${bottom} L ${right - r} ${bottom} Q ${right} ${bottom} ${right} ${bottom - r} A ${rx} ${ry} 0 0 0 ${left} ${bottom - r} Q ${left} ${bottom} ${left + r} ${bottom} Z`;
       } else if (rot === 90) {
-        // Flat base on left (height 2s), arched rightwards
         const left = x + inset;
         const top = y + inset;
         const bottom = y + 2 * s - inset;
@@ -216,7 +214,6 @@ export const LEGO_TILES: TileType[] = [
         const ry = s - inset;
         path = `M ${left} ${top + r} L ${left} ${bottom - r} Q ${left} ${bottom} ${left + r} ${bottom} A ${rx} ${ry} 0 0 0 ${left + r} ${top} Q ${left} ${top} ${left} ${top + r} Z`;
       } else if (rot === 180) {
-        // Flat base on top (length 2s), arched downwards
         const left = x + inset;
         const right = x + 2 * s - inset;
         const top = y + inset;
@@ -224,13 +221,21 @@ export const LEGO_TILES: TileType[] = [
         const ry = s - 2 * inset;
         path = `M ${right - r} ${top} L ${left + r} ${top} Q ${left} ${top} ${left} ${top + r} A ${rx} ${ry} 0 0 0 ${right} ${top + r} Q ${right} ${top} ${right - r} ${top} Z`;
       } else {
-        // Flat base on right (height 2s), arched leftwards
-        const right = x + s - inset;
+        const right = x + 2 * s - inset;
         const top = y + inset;
         const bottom = y + 2 * s - inset;
         const rx = s - 2 * inset;
         const ry = s - inset;
-        path = `M ${right} ${bottom - r} L ${right} ${top + r} Q ${right} ${top} ${right - r} ${top} A ${rx} ${ry} 0 0 0 ${right - r} ${bottom} Q ${right} ${bottom} ${right} ${bottom - r} Z`;
+        const rightEdge = x + s - inset; // Wait, for rot 270 (studWidth=2, studHeight=1 vertical): width is s, height is 2s.
+        // Let's check drawCanvas for rot 270:
+        // const right = x + s - inset; const top = y + inset; const bottom = y + 2 * s - inset;
+        // ctx.moveTo(right, bottom - r); ctx.lineTo(right, top + r); ctx.quadraticCurveTo(right, top, right - r, top);
+        // ctx.ellipse(right, y + s, rx, ry, 0, -Math.PI / 2, Math.PI / 2, true);
+        // ctx.quadraticCurveTo(right, bottom, right, bottom - r);
+        const rx2 = s - 2 * inset;
+        const ry2 = s - inset;
+        const rightX = x + s - inset;
+        path = `M ${rightX} ${bottom - r} L ${rightX} ${top + r} Q ${rightX} ${top} ${rightX - r} ${top} A ${rx2} ${ry2} 0 0 0 ${rightX - r} ${bottom} Q ${rightX} ${bottom} ${rightX} ${bottom - r} Z`;
       }
 
       return <path key={id} d={path} fill={fill} stroke="none" />;
@@ -261,12 +266,12 @@ export const LEGO_TILES: TileType[] = [
         const ry = s - 2 * inset;
         path = `M ${(right - r).toFixed(2)} ${top.toFixed(2)} L ${(left + r).toFixed(2)} ${top.toFixed(2)} Q ${left.toFixed(2)} ${top.toFixed(2)} ${left.toFixed(2)} ${(top + r).toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${right.toFixed(2)} ${(top + r).toFixed(2)} Q ${right.toFixed(2)} ${top.toFixed(2)} ${(right - r).toFixed(2)} ${top.toFixed(2)} Z`;
       } else {
-        const right = x + s - inset;
+        const rightX = x + s - inset;
         const top = y + inset;
         const bottom = y + 2 * s - inset;
-        const rx = s - 2 * inset;
-        const ry = s - inset;
-        path = `M ${right.toFixed(2)} ${(bottom - r).toFixed(2)} L ${right.toFixed(2)} ${(top + r).toFixed(2)} Q ${right.toFixed(2)} ${top.toFixed(2)} ${(right - r).toFixed(2)} ${top.toFixed(2)} A ${rx.toFixed(2)} ${ry.toFixed(2)} 0 0 0 ${(right - r).toFixed(2)} ${bottom.toFixed(2)} Q ${right.toFixed(2)} ${bottom.toFixed(2)} ${right.toFixed(2)} ${(bottom - r).toFixed(2)} Z`;
+        const rx2 = s - 2 * inset;
+        const ry2 = s - inset;
+        path = `M ${rightX.toFixed(2)} ${(bottom - r).toFixed(2)} L ${rightX.toFixed(2)} ${(top + r).toFixed(2)} Q ${rightX.toFixed(2)} ${top.toFixed(2)} ${(rightX - r).toFixed(2)} ${top.toFixed(2)} A ${rx2.toFixed(2)} ${ry2.toFixed(2)} 0 0 0 ${(rightX - r).toFixed(2)} ${bottom.toFixed(2)} Q ${rightX.toFixed(2)} ${bottom.toFixed(2)} ${rightX.toFixed(2)} ${(bottom - r).toFixed(2)} Z`;
       }
 
       return `<path d="${path}" fill="${fill}" stroke="none"/>`;
@@ -1396,7 +1401,7 @@ export const LEGO_TILES: TileType[] = [
     },
   },
 
-  // 26. 1x2 Wedge Right (#29120) - Matches attached SVG
+  // 26. 1x2 Wedge Right (#29120) - Rounded corners
   {
     id: 'tile-1x2-wedge-right',
     name: '1×2 Wedge Right',
@@ -1406,71 +1411,77 @@ export const LEGO_TILES: TileType[] = [
     studHeight: 1,
     getOccupiedCells: (rot) => (rot === 90 || rot === 270 ? [{ dx: 0, dy: 0 }, { dx: 0, dy: 1 }] : [{ dx: 0, dy: 0 }, { dx: 1, dy: 0 }]),
     renderSvg: (x, y, s, rot, fill, id) => {
-      const { inset } = getTileGeometryParams(s);
+      const { inset, radius: r } = getTileGeometryParams(s);
       const isRot = rot === 90 || rot === 270;
       const targetW = isRot ? s : 2 * s;
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
-      const scaleX = innerW / 48;
-      const scaleY = innerH / 24;
+      const hw = s - inset;
+      const hh = s / 2 - inset;
+      const pathData = `M ${-hw + r} ${-hh} L ${0} ${-hh} L ${hw} ${hh - r} Q ${hw} ${hh} ${hw - r} ${hh} L ${-hw + r} ${hh} Q ${-hw} ${hh} ${-hw} ${hh - r} L ${-hw} ${-hh + r} Q ${-hw} ${-hh} ${-hw + r} ${-hh} Z`;
       return (
-        <g
+        <path
           key={id}
-          transform={`translate(${cx}, ${cy}) rotate(${rot}) translate(${-innerW / 2}, ${-innerH / 2}) scale(${scaleX}, ${scaleY})`}
-        >
-          <path d="M24,0L0,0L0,24L24,24L48,0Z" fill={fill} stroke="none" />
-        </g>
+          d={pathData}
+          fill={fill}
+          stroke="none"
+          transform={`translate(${cx}, ${cy}) rotate(${rot})`}
+        />
       );
     },
     renderSvgXml: (x, y, s, rot, fill) => {
-      const { inset } = getTileGeometryParams(s);
+      const { inset, radius: r } = getTileGeometryParams(s);
       const isRot = rot === 90 || rot === 270;
       const targetW = isRot ? s : 2 * s;
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
-      const scaleX = innerW / 48;
-      const scaleY = innerH / 24;
-      return `<g transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot}) translate(${(-innerW / 2).toFixed(2)}, ${(-innerH / 2).toFixed(2)}) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)})"><path d="M24,0L0,0L0,24L24,24L48,0Z" fill="${fill}" stroke="none"/></g>`;
+      const hw = s - inset;
+      const hh = s / 2 - inset;
+      const pathData = `M ${(-hw + r).toFixed(2)} ${(-hh).toFixed(2)} L 0 ${(-hh).toFixed(2)} L ${hw.toFixed(2)} ${(hh - r).toFixed(2)} Q ${hw.toFixed(2)} ${hh.toFixed(2)} ${(hw - r).toFixed(2)} ${hh.toFixed(2)} L ${(-hw + r).toFixed(2)} ${hh.toFixed(2)} Q ${(-hw).toFixed(2)} ${hh.toFixed(2)} ${(-hw).toFixed(2)} ${(hh - r).toFixed(2)} L ${(-hw).toFixed(2)} ${(-hh + r).toFixed(2)} Q ${(-hw).toFixed(2)} ${(-hh).toFixed(2)} ${(-hw + r).toFixed(2)} ${(-hh).toFixed(2)} Z`;
+      return `<path d="${pathData}" fill="${fill}" stroke="none" transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot})"/>`;
     },
     drawCanvas: (ctx, x, y, s, rot, fill) => {
-      const { inset } = getTileGeometryParams(s);
+      const { inset, radius: r } = getTileGeometryParams(s);
       const isRot = rot === 90 || rot === 270;
       const targetW = isRot ? s : 2 * s;
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
+      const hw = s - inset;
+      const hh = s / 2 - inset;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate((rot * Math.PI) / 180);
-      ctx.translate(-innerW / 2, -innerH / 2);
-      ctx.scale(innerW / 48, innerH / 24);
       ctx.fillStyle = fill;
-      const p = new Path2D('M24,0L0,0L0,24L24,24L48,0Z');
-      ctx.fill(p);
+      ctx.beginPath();
+      ctx.moveTo(-hw + r, -hh);
+      ctx.lineTo(0, -hh);
+      ctx.lineTo(hw, hh - r);
+      ctx.quadraticCurveTo(hw, hh, hw - r, hh);
+      ctx.lineTo(-hw + r, hh);
+      ctx.quadraticCurveTo(-hw, hh, -hw, hh - r);
+      ctx.lineTo(-hw, -hh + r);
+      ctx.quadraticCurveTo(-hw, -hh, -hw + r, -hh);
+      ctx.closePath();
+      ctx.fill();
       ctx.restore();
     },
-    getEpsPostScript: (x, y, s, rot, r, g, b) => {
-      const { inset } = getTileGeometryParams(s);
+    getEpsPostScript: (x, y, s, rot, rVal, gVal, bVal) => {
+      const { inset, radius } = getTileGeometryParams(s);
       const isRot = rot === 90 || rot === 270;
       const targetW = isRot ? s : 2 * s;
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
-      return `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rot} rotate\n${(innerW / 48).toFixed(4)} ${(innerH / 24).toFixed(4)} scale\n-24 -12 translate\nnewpath 24 0 moveto 0 0 lineto 0 24 lineto 24 24 lineto 48 0 lineto closepath fill\ngrestore\n`;
+      const hw = s - inset;
+      const hh = s / 2 - inset;
+      return `gsave\n${rVal.toFixed(3)} ${gVal.toFixed(3)} ${bVal.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rot} rotate\nnewpath\n${(-hw + radius).toFixed(2)} ${(-hh).toFixed(2)} moveto\n0 ${(-hh).toFixed(2)} lineto\n${hw.toFixed(2)} ${(hh - radius).toFixed(2)} lineto\n${(-hw + radius).toFixed(2)} ${hh.toFixed(2)} lineto\nclosepath fill\ngrestore\n`;
     },
   },
 
-  // 27. 1x2 Wedge Left (#29119) - Matches attached SVG
+  // 27. 1x2 Wedge Left (#29119) - Rounded corners
   {
     id: 'tile-1x2-wedge-left',
     name: '1×2 Wedge Left',
@@ -1480,71 +1491,77 @@ export const LEGO_TILES: TileType[] = [
     studHeight: 1,
     getOccupiedCells: (rot) => (rot === 90 || rot === 270 ? [{ dx: 0, dy: 0 }, { dx: 0, dy: 1 }] : [{ dx: 0, dy: 0 }, { dx: 1, dy: 0 }]),
     renderSvg: (x, y, s, rot, fill, id) => {
-      const { inset } = getTileGeometryParams(s);
+      const { inset, radius: r } = getTileGeometryParams(s);
       const isRot = rot === 90 || rot === 270;
       const targetW = isRot ? s : 2 * s;
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
-      const scaleX = innerW / 48;
-      const scaleY = innerH / 24;
+      const hw = s - inset;
+      const hh = s / 2 - inset;
+      const pathData = `M ${-hw + r} ${-hh} L ${hw - r} ${-hh} Q ${hw} ${-hh} ${hw} ${-hh + r} L ${hw} ${hh - r} Q ${hw} ${hh} ${hw - r} ${hh} L ${0} ${hh} L ${-hw} ${-hh + r} Q ${-hw} ${-hh} ${-hw + r} ${-hh} Z`;
       return (
-        <g
+        <path
           key={id}
-          transform={`translate(${cx}, ${cy}) rotate(${rot}) translate(${-innerW / 2}, ${-innerH / 2}) scale(${scaleX}, ${scaleY})`}
-        >
-          <path d="M24,0L0,0L0,24L24,24L48,24L24,0Z" fill={fill} stroke="none" />
-        </g>
+          d={pathData}
+          fill={fill}
+          stroke="none"
+          transform={`translate(${cx}, ${cy}) rotate(${rot})`}
+        />
       );
     },
     renderSvgXml: (x, y, s, rot, fill) => {
-      const { inset } = getTileGeometryParams(s);
+      const { inset, radius: r } = getTileGeometryParams(s);
       const isRot = rot === 90 || rot === 270;
       const targetW = isRot ? s : 2 * s;
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
-      const scaleX = innerW / 48;
-      const scaleY = innerH / 24;
-      return `<g transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot}) translate(${(-innerW / 2).toFixed(2)}, ${(-innerH / 2).toFixed(2)}) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)})"><path d="M24,0L0,0L0,24L24,24L48,24L24,0Z" fill="${fill}" stroke="none"/></g>`;
+      const hw = s - inset;
+      const hh = s / 2 - inset;
+      const pathData = `M ${(-hw + r).toFixed(2)} ${(-hh).toFixed(2)} L ${(hw - r).toFixed(2)} ${(-hh).toFixed(2)} Q ${hw.toFixed(2)} ${(-hh).toFixed(2)} ${hw.toFixed(2)} ${(-hh + r).toFixed(2)} L ${hw.toFixed(2)} ${(hh - r).toFixed(2)} Q ${hw.toFixed(2)} ${hh.toFixed(2)} ${(hw - r).toFixed(2)} ${hh.toFixed(2)} L 0 ${hh.toFixed(2)} L ${(-hw).toFixed(2)} ${(-hh + r).toFixed(2)} Q ${(-hw).toFixed(2)} ${(-hh).toFixed(2)} ${(-hw + r).toFixed(2)} ${(-hh).toFixed(2)} Z`;
+      return `<path d="${pathData}" fill="${fill}" stroke="none" transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot})"/>`;
     },
     drawCanvas: (ctx, x, y, s, rot, fill) => {
-      const { inset } = getTileGeometryParams(s);
+      const { inset, radius: r } = getTileGeometryParams(s);
       const isRot = rot === 90 || rot === 270;
       const targetW = isRot ? s : 2 * s;
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
+      const hw = s - inset;
+      const hh = s / 2 - inset;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate((rot * Math.PI) / 180);
-      ctx.translate(-innerW / 2, -innerH / 2);
-      ctx.scale(innerW / 48, innerH / 24);
       ctx.fillStyle = fill;
-      const p = new Path2D('M24,0L0,0L0,24L24,24L48,24L24,0Z');
-      ctx.fill(p);
+      ctx.beginPath();
+      ctx.moveTo(-hw + r, -hh);
+      ctx.lineTo(hw - r, -hh);
+      ctx.quadraticCurveTo(hw, -hh, hw, -hh + r);
+      ctx.lineTo(hw, hh - r);
+      ctx.quadraticCurveTo(hw, hh, hw - r, hh);
+      ctx.lineTo(0, hh);
+      ctx.lineTo(-hw, -hh + r);
+      ctx.quadraticCurveTo(-hw, -hh, -hw + r, -hh);
+      ctx.closePath();
+      ctx.fill();
       ctx.restore();
     },
-    getEpsPostScript: (x, y, s, rot, r, g, b) => {
-      const { inset } = getTileGeometryParams(s);
+    getEpsPostScript: (x, y, s, rot, rVal, gVal, bVal) => {
+      const { inset, radius } = getTileGeometryParams(s);
       const isRot = rot === 90 || rot === 270;
       const targetW = isRot ? s : 2 * s;
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
-      return `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rot} rotate\n${(innerW / 48).toFixed(4)} ${(innerH / 24).toFixed(4)} scale\n-24 -12 translate\nnewpath 24 0 moveto 0 0 lineto 0 24 lineto 24 24 lineto 48 24 lineto closepath fill\ngrestore\n`;
+      const hw = s - inset;
+      const hh = s / 2 - inset;
+      return `gsave\n${rVal.toFixed(3)} ${gVal.toFixed(3)} ${bVal.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rot} rotate\nnewpath\n${(-hw + radius).toFixed(2)} ${(-hh).toFixed(2)} moveto\n${hw.toFixed(2)} ${(-hh).toFixed(2)} lineto\n${hw.toFixed(2)} ${hh.toFixed(2)} lineto\n${(-hw).toFixed(2)} ${(-hh + radius).toFixed(2)} lineto\nclosepath fill\ngrestore\n`;
     },
   },
 
-  // 28. 1x1 Heart Tile (#39739) - Matches attached SVG
+  // 28. 1x1 Heart Tile (#39739)
   {
     id: 'tile-1x1-heart',
     name: '1×1 Heart Tile',
@@ -1610,7 +1627,7 @@ export const LEGO_TILES: TileType[] = [
     },
   },
 
-  // 29. 1x2 Grille Tile (#2412b) - Matches attached SVG
+  // 29. 1x2 Grille Tile (#2412b) - Original SVG vector path
   {
     id: 'tile-1x2-grille',
     name: '1×2 Grille Tile',
@@ -1626,14 +1643,14 @@ export const LEGO_TILES: TileType[] = [
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
+      const innerW = targetW - 2 * inset;
+      const innerH = targetH - 2 * inset;
       const scaleX = innerW / 48;
       const scaleY = innerH / 24;
       return (
         <g
           key={id}
-          transform={`translate(${cx}, ${cy}) rotate(${rot}) translate(${-innerW / 2}, ${-innerH / 2}) scale(${scaleX}, ${scaleY})`}
+          transform={`translate(${cx}, ${cy}) rotate(${rot}) translate(-24, -12) scale(${scaleX}, ${scaleY})`}
         >
           <path
             d="M48,19.87v4.13H0v-4.13h48ZM48,4.14V0H0v4.14h48ZM0,9.94v4.14h48v-4.14H0Z"
@@ -1650,11 +1667,11 @@ export const LEGO_TILES: TileType[] = [
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
+      const innerW = targetW - 2 * inset;
+      const innerH = targetH - 2 * inset;
       const scaleX = innerW / 48;
       const scaleY = innerH / 24;
-      return `<g transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot}) translate(${(-innerW / 2).toFixed(2)}, ${(-innerH / 2).toFixed(2)}) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)})"><path d="M48,19.87v4.13H0v-4.13h48ZM48,4.14V0H0v4.14h48ZM0,9.94v4.14h48v-4.14H0Z" fill="${fill}" stroke="none"/></g>`;
+      return `<g transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot}) translate(-24, -12) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)})"><path d="M48,19.87v4.13H0v-4.13h48ZM48,4.14V0H0v4.14h48ZM0,9.94v4.14h48v-4.14H0Z" fill="${fill}" stroke="none"/></g>`;
     },
     drawCanvas: (ctx, x, y, s, rot, fill) => {
       const { inset } = getTileGeometryParams(s);
@@ -1663,13 +1680,13 @@ export const LEGO_TILES: TileType[] = [
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
+      const innerW = targetW - 2 * inset;
+      const innerH = targetH - 2 * inset;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate((rot * Math.PI) / 180);
-      ctx.translate(-innerW / 2, -innerH / 2);
       ctx.scale(innerW / 48, innerH / 24);
+      ctx.translate(-24, -12);
       ctx.fillStyle = fill;
       const p = new Path2D('M48,19.87v4.13H0v-4.13h48ZM48,4.14V0H0v4.14h48ZM0,9.94v4.14h48v-4.14H0Z');
       ctx.fill(p);
@@ -1682,13 +1699,13 @@ export const LEGO_TILES: TileType[] = [
       const targetH = isRot ? 2 * s : s;
       const cx = x + targetW / 2;
       const cy = y + targetH / 2;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = s - 2 * inset;
-      return `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rot} rotate\n${(innerW / 48).toFixed(4)} ${(innerH / 24).toFixed(4)} scale\n-24 -12 translate\n0 0 48 4.14 rectfill\n0 9.94 48 4.14 rectfill\n0 19.87 48 4.13 rectfill\ngrestore\n`;
+      const innerW = targetW - 2 * inset;
+      const innerH = targetH - 2 * inset;
+      return `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rot} rotate\n${(innerW / 48).toFixed(4)} ${(innerH / 24).toFixed(4)} scale\n-24 -12 translate\nnewpath 48 19.87 moveto 48 24 lineto 0 24 lineto 0 19.87 lineto 48 19.87 lineto closepath 48 4.14 moveto 48 0 lineto 0 0 lineto 0 4.14 lineto 48 4.14 lineto closepath 0 9.94 moveto 0 14.08 lineto 48 14.08 lineto 48 9.94 lineto 0 9.94 lineto closepath fill\ngrestore\n`;
     },
   },
 
-  // 30. 2x2 Corner Facet Tile (#27263) - Matches attached SVG
+  // 30. 2x2 Corner Facet Tile (#27263) - Original SVG vector path
   {
     id: 'tile-2x2-corner-facet',
     name: '2×2 Corner Facet Tile',
@@ -1699,16 +1716,18 @@ export const LEGO_TILES: TileType[] = [
     getOccupiedCells: (rot) => rotateCells([{ dx: 0, dy: 0 }, { dx: 1, dy: 0 }, { dx: 0, dy: 1 }], 2, 2, rot),
     renderSvg: (x, y, s, rot, fill, id) => {
       const { inset } = getTileGeometryParams(s);
+      const targetW = 2 * s;
+      const targetH = 2 * s;
       const cx = x + s;
       const cy = y + s;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = 2 * s - 2 * inset;
+      const innerW = targetW - 2 * inset;
+      const innerH = targetH - 2 * inset;
       const scaleX = innerW / 48;
       const scaleY = innerH / 48;
       return (
         <g
           key={id}
-          transform={`translate(${cx}, ${cy}) rotate(${rot}) translate(${-innerW / 2}, ${-innerH / 2}) scale(${scaleX}, ${scaleY})`}
+          transform={`translate(${cx}, ${cy}) rotate(${rot}) translate(-24, -24) scale(${scaleX}, ${scaleY})`}
         >
           <path
             d="M24,0L0,24L0,48L24,48L24,24L48,24L48,0L24,0Z"
@@ -1720,25 +1739,29 @@ export const LEGO_TILES: TileType[] = [
     },
     renderSvgXml: (x, y, s, rot, fill) => {
       const { inset } = getTileGeometryParams(s);
+      const targetW = 2 * s;
+      const targetH = 2 * s;
       const cx = x + s;
       const cy = y + s;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = 2 * s - 2 * inset;
+      const innerW = targetW - 2 * inset;
+      const innerH = targetH - 2 * inset;
       const scaleX = innerW / 48;
       const scaleY = innerH / 48;
-      return `<g transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot}) translate(${(-innerW / 2).toFixed(2)}, ${(-innerH / 2).toFixed(2)}) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)})"><path d="M24,0L0,24L0,48L24,48L24,24L48,24L48,0L24,0Z" fill="${fill}" stroke="none"/></g>`;
+      return `<g transform="translate(${cx.toFixed(2)}, ${cy.toFixed(2)}) rotate(${rot}) translate(-24, -24) scale(${scaleX.toFixed(4)}, ${scaleY.toFixed(4)})"><path d="M24,0L0,24L0,48L24,48L24,24L48,24L48,0L24,0Z" fill="${fill}" stroke="none"/></g>`;
     },
     drawCanvas: (ctx, x, y, s, rot, fill) => {
       const { inset } = getTileGeometryParams(s);
+      const targetW = 2 * s;
+      const targetH = 2 * s;
       const cx = x + s;
       const cy = y + s;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = 2 * s - 2 * inset;
+      const innerW = targetW - 2 * inset;
+      const innerH = targetH - 2 * inset;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate((rot * Math.PI) / 180);
-      ctx.translate(-innerW / 2, -innerH / 2);
       ctx.scale(innerW / 48, innerH / 48);
+      ctx.translate(-24, -24);
       ctx.fillStyle = fill;
       const p = new Path2D('M24,0L0,24L0,48L24,48L24,24L48,24L48,0L24,0Z');
       ctx.fill(p);
@@ -1746,11 +1769,13 @@ export const LEGO_TILES: TileType[] = [
     },
     getEpsPostScript: (x, y, s, rot, r, g, b) => {
       const { inset } = getTileGeometryParams(s);
+      const targetW = 2 * s;
+      const targetH = 2 * s;
       const cx = x + s;
       const cy = y + s;
-      const innerW = 2 * s - 2 * inset;
-      const innerH = 2 * s - 2 * inset;
-      return `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rot} rotate\n${(innerW / 48).toFixed(4)} ${(innerH / 48).toFixed(4)} scale\n-24 -24 translate\nnewpath 24 0 moveto 0 24 lineto 0 48 lineto 24 48 lineto 24 24 lineto 48 24 lineto 48 0 lineto closepath fill\ngrestore\n`;
+      const innerW = targetW - 2 * inset;
+      const innerH = targetH - 2 * inset;
+      return `gsave\n${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)} setrgbcolor\n${cx.toFixed(2)} ${cy.toFixed(2)} translate\n${rot} rotate\n${(innerW / 48).toFixed(4)} ${(innerH / 48).toFixed(4)} scale\n-24 -24 translate\nnewpath 24 0 moveto 0 24 lineto 0 48 lineto 24 48 lineto 24 24 lineto 48 24 lineto 48 0 lineto 24 0 lineto closepath fill\ngrestore\n`;
     },
   },
 ];
