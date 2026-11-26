@@ -78,6 +78,15 @@ export const Header: React.FC<HeaderProps> = ({
           <Redo2 className="w-4 h-4" />
         </button>
 
+        <button
+          onClick={onClear}
+          title="Clear canvas"
+          aria-label="Clear canvas"
+          className="p-2 text-neutral-300 hover:text-rose-400 hover:bg-neutral-800 rounded-lg transition-colors shrink-0"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+
         <div className="h-4 w-px bg-neutral-800 mx-1 hidden sm:block" />
 
         <button
@@ -110,15 +119,6 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <ListFilter className="w-3.5 h-3.5 text-neutral-400" />
           <span>Parts List</span>
-        </button>
-
-        <button
-          onClick={onClear}
-          title="Clear canvas"
-          aria-label="Clear canvas"
-          className="p-2 text-neutral-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors shrink-0"
-        >
-          <Trash2 className="w-4 h-4" />
         </button>
       </nav>
 

@@ -174,11 +174,8 @@ export default function App() {
 
   // Clear Canvas
   const handleClear = useCallback(() => {
-    if (tiles.length === 0) return;
-    if (window.confirm('Are you sure you want to clear the entire canvas? This action can be undone.')) {
-      commitTiles([]);
-    }
-  }, [tiles, commitTiles]);
+    commitTiles([]);
+  }, [commitTiles]);
 
   // Rotation toggle
   const handleRotateCurrent = useCallback(() => {
